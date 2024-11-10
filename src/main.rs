@@ -14,16 +14,12 @@ fn main() {
     // Calculate the image height, and ensure that it's at least 1.
     let image_height = (image_width as f32 / aspect_ratio) as i32;
     let image_height = if image_height < 1 { 1 } else { image_height };
-    println!("{:?}", image_width);
-    println!("{:?}", image_height);
 
     // Camera
     let focal_length = 1.0;
     let viewport_height = 2.0;
     let viewport_width = viewport_height * ( (image_width as f32)/(image_height as f32) );
     let camera_center = Vec3::new(0.0,0.0,0.0);
-    println!("{:?}", viewport_width);
-    println!("{:?}", viewport_height);
 
     // Create the vectors across the horizontal and down the vertical viewport edges.
     let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
