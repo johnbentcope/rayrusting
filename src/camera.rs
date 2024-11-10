@@ -7,7 +7,7 @@ use crate::hittable::HittableList;
 use std::fs::File;
 use rand::Rng;
 use std::io::{BufWriter, Write};
-use std::f32::{INFINITY, NEG_INFINITY};
+use std::f32::INFINITY;
 
 
 pub struct Camera{
@@ -58,7 +58,7 @@ impl Camera{
 
                 let mut pixel_color = Vec3::new(0.0, 0.0, 0.0); 
                 
-                for i in (0..self.samples_per_pixel) {
+                for _ in 0..self.samples_per_pixel {
                     let r = Self::get_ray(self, col, row);
                     pixel_color += Self::ray_color(&r, world);
                 }
