@@ -1,6 +1,7 @@
 mod ray;
 mod hittable;
 mod sphere;
+mod interval;
 
 use std::f32::INFINITY;
 use std::fs::File;
@@ -11,6 +12,7 @@ use hittable::HittableList;
 use sphere::Sphere;
 use crate::hittable::Hittable;
 use ray::Ray;
+use interval::Interval;
 
 fn main() {
     // Debug flag for verbosity
@@ -75,7 +77,7 @@ fn main() {
 fn ray_color(r: & Ray, world: &HittableList) -> Vec3 {
     let blue = Vec3::new(0.5, 0.7, 1.0);
     let white = Vec3::new(1.0, 1.0, 1.0);
-    if let Some(rec) = world.hit(r,0.0,INFINITY) {
+    if let Some(rec) = world.hit(r,Interval::new(0.0,INFINITY)) {
         return 0.5 * (rec.normal + white);
     }
 

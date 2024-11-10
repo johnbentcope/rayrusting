@@ -1,5 +1,6 @@
 use glam::Vec3;
 use crate::ray::Ray;
+use crate::interval::Interval;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct HitRecord {
@@ -19,7 +20,7 @@ impl HitRecord {
     }
 }
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
 }
 
 #[derive(Default)]
@@ -28,31 +29,31 @@ pub struct HittableList{
 }
 
 impl HittableList{
-    // pub fn new(object: Box<dyn Hittable>) -> Self {
-    //     {
-    //         let mut list = Self::default();
-    //         list.objects.push(object);
-    //         list
-    //     }
-    // }
+    pub fn new(object: Box<dyn Hittable>) -> Self {
+        {
+            let mut list = Self::default();
+            list.objects.push(object);
+            list
+        }
+    }
 
     pub fn add(&mut self, obj: Box<dyn Hittable>) {
         self.objects.push(obj);
     }
 
-    // pub fn clear(mut self){
-    //     self.objects.clear();
-    // }
+    pub fn clear(mut self){
+        self.objects.clear();
+    }
 
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        let mut closest_so_far = t_max;
+    fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
+        let mut closest_so_far = ray_t.max;
         let mut hit_record: Option<HitRecord> = None;
 
         for object in self.objects.iter() {
-            if let Some(temp_rec) = object.hit(r, t_min, closest_so_far) {
+            if let Some(temp_rec) = object.hit(r, Interval::new(ray_t.min, closest_so_far)) {
                 closest_so_far = temp_rec.t;
                 hit_record = Some(temp_rec);
             } 
