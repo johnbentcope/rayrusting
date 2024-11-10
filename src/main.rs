@@ -1,8 +1,26 @@
+mod utils;
+mod ray;
+mod hittable;
+mod sphere;
+
+use std::f32::INFINITY;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use glam::Vec3;
 
+use hittable::HittableList;
+use sphere::Sphere;
+use crate::hittable::Hittable;
+use ray::Ray;
+
 fn main() {
+    // Debug flag for verbosity
+    let debug = false;
+
+    let mut world = HittableList::default();
+    world.add(Box::new(Sphere::new(Vec3::new(0.0,0.0,-1.0), 0.5)));
+    world.add(Box::new(Sphere::new(Vec3::new(0.0,-100.5,-1.0), 100.0)));
+
     // File I/O Setup
     let file = File::create("image.ppm").expect("Failed to create file");
     let mut writer = BufWriter::new(file);
@@ -36,18 +54,17 @@ fn main() {
     write_header(&mut writer, &image_width, &image_height);
 
     for row in 0..image_height {
-        // let rem = image_height-1;
-        // println!("Writing scanline {row} of {rem}");
+        if debug == true {
+            let rem = image_height-1;
+            println!("Writing scanline {row} of {rem}");
+        }
         for col in 0..image_width {
-            // let r = col as f32 / (image_width-1) as f32 ;
-            // let g = row as f32 / (image_height-1) as f32 ;
-            // let b = 0.0;
+
             let pixel_center = pixel00_loc + (col as f32 * pixel_delta_u) + (row as f32 * pixel_delta_v);
             let ray_direction = pixel_center - camera_center;
             let r = Ray::new(camera_center, ray_direction);
 
-            // let color = Vec3::new(r, g, b);
-            let color = ray_color(& r);
+            let color = ray_color(& r, &world);
 
             write_color(&mut writer, &color).unwrap();
 
@@ -55,32 +72,16 @@ fn main() {
     }
 }
 
-fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> f32 {
-    let oc = center - r.origin;
-    let a = r.direction.dot(r.direction);
-    let b = -2.0 * r.direction.dot(oc);
-    let c = oc.dot(oc) - radius*radius;
-    let discriminant = b*b - 4.0*a*c;
-    
-    // discriminant >= 0.0
 
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-b - discriminant.sqrt() ) / (2.0*a);
-    }
-}
-
-fn ray_color(r: & Ray) -> Vec3 {
-    let t = hit_sphere(&Vec3::new(0.0,0.0,-1.0), 0.5, r);
-    if t > 0.0 {
-        let N = (r.at(t) - Vec3::new(0.0,0.0,-1.0)).normalize();
-        return 0.5*Vec3::new(N.x+1.0, N.y+1.0, N.z+1.0);
-    }
-    let unit_direction = r.direction.normalize();
-    let a = 0.5*(unit_direction.y + 1.0);
+fn ray_color(r: & Ray, world: &HittableList) -> Vec3 {
     let blue = Vec3::new(0.5, 0.7, 1.0);
     let white = Vec3::new(1.0, 1.0, 1.0);
+    if let Some(rec) = world.hit(r,0.0,INFINITY) {
+        return 0.5 * (rec.normal + white);
+    }
+
+    let unit_direction = r.direction.normalize();
+    let a = 0.5*(unit_direction.y + 1.0);
     return white.lerp(blue, a);
 }
 
@@ -96,20 +97,4 @@ fn write_color(writer: &mut BufWriter<File>, color: &Vec3) -> Result<(), std::io
     let b: i32 = (color.z * 255.99) as i32;
 
     writeln!(writer, "{r:>3} {g:>3} {b:>3}")
-}
-
-#[derive(Debug, Clone, Copy)]
-struct Ray {
-    origin: Vec3,
-    direction: Vec3,
-}
-
-impl Ray{
-    fn new(origin: Vec3, direction:  Vec3) -> Self {
-        Self { origin, direction }
-    }
-
-    fn at(&self, t: f32) -> Vec3 {
-        return self.origin + self.direction*t;
-    }
 }
