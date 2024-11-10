@@ -9,7 +9,7 @@ fn main() {
 
     // Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
+    let image_width = 600;
     
     // Calculate the image height, and ensure that it's at least 1.
     let image_height = (image_width as f32 / aspect_ratio) as i32;
@@ -55,19 +55,27 @@ fn main() {
     }
 }
 
-fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> bool {
+fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> f32 {
     let oc = center - r.origin;
     let a = r.direction.dot(r.direction);
     let b = -2.0 * r.direction.dot(oc);
     let c = oc.dot(oc) - radius*radius;
     let discriminant = b*b - 4.0*a*c;
     
-    discriminant >= 0.0
+    // discriminant >= 0.0
+
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt() ) / (2.0*a);
+    }
 }
 
 fn ray_color(r: & Ray) -> Vec3 {
-    if hit_sphere(&Vec3::new(0.0,0.0,-1.0), 0.5, r) {
-        return Vec3::new(1.0, 0.0, 0.0);
+    let t = hit_sphere(&Vec3::new(0.0,0.0,-1.0), 0.5, r);
+    if t > 0.0 {
+        let N = (r.at(t) - Vec3::new(0.0,0.0,-1.0)).normalize();
+        return 0.5*Vec3::new(N.x+1.0, N.y+1.0, N.z+1.0);
     }
     let unit_direction = r.direction.normalize();
     let a = 0.5*(unit_direction.y + 1.0);
