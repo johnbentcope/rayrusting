@@ -1,4 +1,3 @@
-mod utils;
 mod ray;
 mod hittable;
 mod sphere;
