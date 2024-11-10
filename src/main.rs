@@ -14,12 +14,16 @@ fn main() {
     // Calculate the image height, and ensure that it's at least 1.
     let image_height = (image_width as f32 / aspect_ratio) as i32;
     let image_height = if image_height < 1 { 1 } else { image_height };
+    println!("{:?}", image_width);
+    println!("{:?}", image_height);
 
     // Camera
     let focal_length = 1.0;
     let viewport_height = 2.0;
-    let viewport_width = viewport_height * ((image_width)/image_height) as f32;
+    let viewport_width = viewport_height * ( (image_width as f32)/(image_height as f32) );
     let camera_center = Vec3::new(0.0,0.0,0.0);
+    println!("{:?}", viewport_width);
+    println!("{:?}", viewport_height);
 
     // Create the vectors across the horizontal and down the vertical viewport edges.
     let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
@@ -36,8 +40,8 @@ fn main() {
     write_header(&mut writer, &image_width, &image_height);
 
     for row in 0..image_height {
-        let rem = image_height-1;
-        println!("Writing scanline {row} of {rem}");
+        // let rem = image_height-1;
+        // println!("Writing scanline {row} of {rem}");
         for col in 0..image_width {
             // let r = col as f32 / (image_width-1) as f32 ;
             // let g = row as f32 / (image_height-1) as f32 ;
@@ -55,7 +59,20 @@ fn main() {
     }
 }
 
+fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> bool {
+    let oc = center - r.origin;
+    let a = r.direction.dot(r.direction);
+    let b = -2.0 * r.direction.dot(oc);
+    let c = oc.dot(oc) - radius*radius;
+    let discriminant = b*b - 4.0*a*c;
+    
+    discriminant >= 0.0
+}
+
 fn ray_color(r: & Ray) -> Vec3 {
+    if hit_sphere(&Vec3::new(0.0,0.0,-1.0), 0.5, r) {
+        return Vec3::new(1.0, 0.0, 0.0);
+    }
     let unit_direction = r.direction.normalize();
     let a = 0.5*(unit_direction.y + 1.0);
     let blue = Vec3::new(0.5, 0.7, 1.0);
