@@ -1,16 +1,16 @@
-use glam::Vec3;
+use glam::{Vec3, DVec3};
 use crate::hittable::Hittable;
 use crate::hittable::HitRecord;
 use crate::ray::Ray;
 use crate::interval::Interval;
 
 pub struct Sphere {
-    center: Vec3,
-    radius: f32,
+    center: DVec3,
+    radius: f64,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32) -> Self {
+    pub fn new(center: DVec3, radius: f64) -> Self {
         Self { center, radius }
     }
 }
@@ -41,7 +41,7 @@ impl Hittable for Sphere {
         let mut rec = HitRecord {
             p: r.at(root),
             t: root,
-            normal: Vec3::ZERO,
+            normal: DVec3::ZERO,
             front_face: false,
         };
 

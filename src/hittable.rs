@@ -1,17 +1,17 @@
-use glam::Vec3;
+use glam::{Vec3, DVec3};
 use crate::ray::Ray;
 use crate::interval::Interval;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct HitRecord {
-    pub p: Vec3,
-    pub normal: Vec3,
-    pub t: f32,
+    pub p: DVec3,
+    pub normal: DVec3,
+    pub t: f64,
     pub front_face: bool,
 }
 
 impl HitRecord {
-    pub fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
+    pub fn set_face_normal(&mut self, r: &Ray, outward_normal: DVec3) {
         // Sets the hit record normal vector.
         // NOTE: the parameter `outward_normal` is assumed to have unit length.
 

@@ -1,5 +1,5 @@
 // use crate::hittable::Hittable;
-use glam::Vec3;
+use glam::{Vec3, DVec3};
 use crate::ray::Ray;
 use crate::interval::Interval;
 use crate::hittable::Hittable;
@@ -7,19 +7,20 @@ use crate::hittable::HittableList;
 use std::fs::File;
 use rand::Rng;
 use std::io::{BufWriter, Write};
-use std::f32::INFINITY;
+use std::f64::INFINITY;
 
 
 pub struct Camera{
     pub aspect_ratio: f32,
     pub image_width: i32,
     image_height: i32,
-    center: Vec3,
-    pixel00_loc: Vec3,
-    pixel_delta_u: Vec3,
-    pixel_delta_v: Vec3,
-    samples_per_pixel: i32,
-    pixel_samples_scale : f32,
+    center: DVec3,
+    pixel00_loc: DVec3,
+    pixel_delta_u: DVec3,
+    pixel_delta_v: DVec3,
+    pub samples_per_pixel: i32,
+    pixel_samples_scale : f64,
+    max_depth: i32,
 }
 
 impl Camera{
@@ -28,18 +29,19 @@ impl Camera{
             aspect_ratio: 1.0,
             image_width: 600,
             image_height: 600,
-            center: Vec3::new(0.0,0.0,0.0),
-            pixel00_loc: Vec3::new(0.0,0.0,0.0),
-            pixel_delta_u: Vec3::new(0.0,0.0,0.0),
-            pixel_delta_v: Vec3::new(0.0,0.0,0.0),
-            samples_per_pixel: 30,
+            center: DVec3::new(0.0,0.0,0.0),
+            pixel00_loc: DVec3::new(0.0,0.0,0.0),
+            pixel_delta_u: DVec3::new(0.0,0.0,0.0),
+            pixel_delta_v: DVec3::new(0.0,0.0,0.0),
+            samples_per_pixel: 10,
             pixel_samples_scale : 0.0,
+            max_depth : 10,
         }
     }
 
     pub fn render(&mut self, world: &HittableList){
         // Debug flag for verbosity
-        let debug = false;
+        let debug = true;
 
         self.initialize();
 
@@ -56,11 +58,11 @@ impl Camera{
             }
             for col in 0..self.image_width {
 
-                let mut pixel_color = Vec3::new(0.0, 0.0, 0.0); 
+                let mut pixel_color = DVec3::new(0.0, 0.0, 0.0); 
                 
                 for _ in 0..self.samples_per_pixel {
                     let r = Self::get_ray(self, col, row);
-                    pixel_color += Self::ray_color(&r, world);
+                    pixel_color += Self::ray_color(&r, self.max_depth, world);
                 }
 
                 let pixel_color = self.pixel_samples_scale * pixel_color;
@@ -70,11 +72,15 @@ impl Camera{
         }
     }
 
-    fn ray_color(r: & Ray, world: &HittableList) -> Vec3 {
-        let blue = Vec3::new(0.5, 0.7, 1.0);
-        let white = Vec3::new(1.0, 1.0, 1.0);
-        if let Some(rec) = world.hit(r,Interval::new(0.0,INFINITY)) {
-            return 0.5 * (rec.normal + white);
+    fn ray_color(r: & Ray, depth: i32, world: &HittableList) -> DVec3 {
+        if depth <= 0 {
+            return DVec3::new(1.0, 0.0, 1.0);
+        }
+        let blue = DVec3::new(0.5, 0.7, 1.0);
+        let white = DVec3::new(1.0, 1.0, 1.0);
+        if let Some(rec) = world.hit(r,Interval::new(0.001,INFINITY)) {
+            let direction: DVec3 = crate::utils::random_on_hemisphere(rec.normal);
+            return 0.5 * Self::ray_color(&Ray::new(rec.p, direction), depth-1, world);
         }
 
         let unit_direction = r.direction.normalize();
@@ -85,7 +91,7 @@ impl Camera{
     fn get_ray(&self, x: i32, y: i32) -> Ray{
         
         let offset = Self::sample_square();
-        let pixel_sample = self.pixel00_loc + ((x as f32 + offset.x) * self.pixel_delta_u) + ((y as f32 + offset.y) * self.pixel_delta_v);
+        let pixel_sample = self.pixel00_loc + ((x as f64 + offset.x) * self.pixel_delta_u) + ((y as f64 + offset.y) * self.pixel_delta_v);
 
         let ray_origin = self.center;
         let ray_direction = pixel_sample - ray_origin;
@@ -93,36 +99,36 @@ impl Camera{
         return Ray::new(ray_origin, ray_direction);
     }
 
-    fn sample_square() -> Vec3 {
+    fn sample_square() -> DVec3 {
         let mut rng = rand::thread_rng();
 
         // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
-        return Vec3::new(rng.gen::<f32>() - 0.5, rng.gen::<f32>() - 0.5, 0.0);
+        return DVec3::new(rng.gen::<f64>() - 0.5, rng.gen::<f64>() - 0.5, 0.0);
     }
 
     fn initialize(&mut self) {
         // Calculate the image height, and ensure that it's at least 1.
         self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
         self.image_height = if self.image_height < 1 { 1 } else { self.image_height };
-        self.center = Vec3::new(0.0,0.0,0.0);
+        self.center = DVec3::new(0.0,0.0,0.0);
 
-        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f32;
+        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f64;
 
         // Initialize viewport dimensions
         let focal_length = 1.0;
         let viewport_height = 2.0;
-        let viewport_width = viewport_height * ( (self.image_width as f32)/(self.image_height as f32) );
+        let viewport_width = viewport_height * ( (self.image_width as f64)/(self.image_height as f64) );
 
         // Create the vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
+        let viewport_u = DVec3::new(viewport_width, 0.0, 0.0);
+        let viewport_v = DVec3::new(0.0, -viewport_height, 0.0);
 
         // Create the horizontal and vertical delta vectors from pixel to pixel.
-        self.pixel_delta_u = viewport_u / self.image_width as f32;
-        self.pixel_delta_v = viewport_v / self.image_height as f32;
+        self.pixel_delta_u = viewport_u / self.image_width as f64;
+        self.pixel_delta_v = viewport_v / self.image_height as f64;
 
         // Calculate the location of the upper left pixel.
-        let viewport_upper_left = self.center - Vec3::new(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0;
+        let viewport_upper_left = self.center - DVec3::new(0.0, 0.0, focal_length) - viewport_u/2.0 - viewport_v/2.0;
         self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
@@ -132,10 +138,14 @@ impl Camera{
         writeln!(writer, "255").unwrap();
     }
     
-    fn write_color(writer: &mut BufWriter<File>, color: &Vec3) -> Result<(), std::io::Error> {
+    fn write_color(writer: &mut BufWriter<File>, color: &DVec3) -> Result<(), std::io::Error> {
         let r  = color.x;
         let g  = color.y;
         let b  = color.z;
+
+        let r = Self::linear_to_gamma(r);
+        let g = Self::linear_to_gamma(g);
+        let b = Self::linear_to_gamma(b);
 
         let intensity = Interval::new(0.000, 0.999);
         let r: i32 = (intensity.clamp(r) * 256.) as i32;
@@ -143,6 +153,11 @@ impl Camera{
         let b: i32 = (intensity.clamp(b) * 256.) as i32;
     
         writeln!(writer, "{r:>3} {g:>3} {b:>3}")
+    }
+
+    fn linear_to_gamma(linear_component: f64) -> f64 {
+        if (linear_component > 0.0) { return linear_component.sqrt(); }
+        0.0
     }
 
 }
