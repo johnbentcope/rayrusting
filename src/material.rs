@@ -2,6 +2,7 @@ use crate::hittable::HitRecord;
 // Import necessary modules
 use crate::ray::Ray;
 use crate::utils::*;
+use rand::Rng;
 
 use glam::DVec3;
 
@@ -55,29 +56,42 @@ impl Material {
                 Some(scattered.direction.dot(rec.normal) > 0.0)
             }
             Dielectric { refraction_index } => {
+
+                // White, no tinting
                 *attenuation = DVec3::new(1.0, 1.0, 1.0);
-                let ri = if rec.front_face {
-                    1.0 / refraction_index
-                } else {
-                    *refraction_index
-                };
+
 
                 let unit_direction = r_in.direction.normalize();
 
-                let cos_theta = (-1.0 * unit_direction).dot(rec.normal).min(1.0);
-                let sin_theta = (1.0- cos_theta*cos_theta).sqrt();
+                let cos_theta = rec.normal.dot(-1.0 * unit_direction).min(1.0);
+                let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
-                let cannot_refract = ri * sin_theta > 1.0;
-                let direction = if cannot_refract {
-                    reflect(unit_direction, rec.normal)
+                let ri = if rec.front_face {
+                    1.0 / *refraction_index
                 } else {
-                    refract(unit_direction, rec.normal, ri)
+                    *refraction_index
                 };
+                
+                let cannot_refract = ri * sin_theta > 1.0;
+                let mut rng = rand::thread_rng();
+                let direction =
+                    if cannot_refract || Self::reflectance(cos_theta, ri) > rng.gen::<f64>() {
+                        reflect(unit_direction, rec.normal)
+                    } else {
+                        refract(rec.normal, unit_direction, ri)
+                    };
 
                 *scattered = Ray::new(rec.p, direction);
 
                 Some(true)
             }
         }
+    }
+
+    fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
+        // Use Schlick's approximation for reflectance.
+        let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        let r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
     }
 }

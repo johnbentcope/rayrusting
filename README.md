@@ -24,7 +24,7 @@ As such, I'm following along with existing resources implementing their solution
 - [X] Chapter  8 - Antialiasing
 - [X] Chapter  9 - Diffuse Materials
 - [X] Chapter 10 - Metal
-- [ ] Chapter 11 - Dielectrics
-- [ ] Chapter 12 - Positionable Camera
+- [X] Chapter 11 - Dielectrics
+- [X] Chapter 12 - Positionable Camera
 - [ ] Chapter 13 - Defocus Blur
 - [ ] Chapter 14 - Next Steps

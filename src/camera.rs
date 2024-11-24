@@ -20,6 +20,10 @@ pub struct Camera {
     pub samples_per_pixel: i32,
     pixel_samples_scale: f64,
     max_depth: i32,
+    pub vfov: f64,
+    pub look_from: DVec3,
+    pub look_at: DVec3,
+    pub look_up: DVec3,
 }
 
 impl Camera {
@@ -34,8 +38,51 @@ impl Camera {
             pixel_delta_v: DVec3::new(0.0, 0.0, 0.0),
             samples_per_pixel: 10,
             pixel_samples_scale: 0.0,
-            max_depth:10,
+            max_depth: 10,
+            vfov: 90.0,
+            look_from: DVec3::new(0.0, 0.0, 0.0),
+            look_at: DVec3::new(0.0, 0.0, -1.0),
+            look_up: DVec3::new(0.0, 1.0, 0.0),
         }
+    }
+
+    fn initialize(&mut self) {
+        // Calculate the image height, and ensure that it's at least 1.
+        self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
+        self.image_height = if self.image_height < 1 {
+            1
+        } else {
+            self.image_height
+        };
+
+        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f64;
+
+        self.center = self.look_from;
+
+        // Initialize viewport dimensions
+        let focal_length = (self.look_from - self.look_at).length();
+        let theta = self.vfov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
+        let viewport_width =
+            viewport_height * ((self.image_width as f64) / (self.image_height as f64));
+
+        let w = (self.look_from - self.look_at).normalize();
+        let u = self.look_up.cross(w);
+        let v = w.cross(u);
+
+        // Create the vectors across the horizontal and down the vertical viewport edges.
+        let viewport_u = viewport_width * u;
+        let viewport_v = viewport_height * -v;
+
+        // Create the horizontal and vertical delta vectors from pixel to pixel.
+        self.pixel_delta_u = viewport_u / self.image_width as f64;
+        self.pixel_delta_v = viewport_v / self.image_height as f64;
+
+        // Calculate the location of the upper left pixel.
+        let viewport_upper_left =
+            self.center - focal_length * w - viewport_u / 2.0 - viewport_v / 2.0;
+        self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
     pub fn render(&mut self, world: &HittableList) {
@@ -77,9 +124,13 @@ impl Camera {
         let white = DVec3::new(1.0, 1.0, 1.0);
 
         if let Some(rec) = world.hit(r, Interval::new(0.001, INFINITY)) {
-            let mut scattered = Ray::new(DVec3::new(0.0, 0.0, 0.0),DVec3::new(0.0, 0.0, 0.0));
+            let mut scattered = Ray::new(DVec3::new(0.0, 0.0, 0.0), DVec3::new(0.0, 0.0, 0.0));
             let mut attenuation = DVec3::new(0.0, 0.0, 0.0);
-            if rec.mat.scatter(*r, &rec, &mut attenuation, &mut scattered).unwrap() {
+            if rec
+                .mat
+                .scatter(*r, &rec, &mut attenuation, &mut scattered)
+                .unwrap()
+            {
                 return attenuation * Self::ray_color(&scattered, depth - 1, world);
             }
             return DVec3::new(0.0, 0.0, 0.0);
@@ -107,38 +158,6 @@ impl Camera {
 
         // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
         return DVec3::new(rng.gen::<f64>() - 0.5, rng.gen::<f64>() - 0.5, 0.0);
-    }
-
-    fn initialize(&mut self) {
-        // Calculate the image height, and ensure that it's at least 1.
-        self.image_height = (self.image_width as f32 / self.aspect_ratio) as i32;
-        self.image_height = if self.image_height < 1 {
-            1
-        } else {
-            self.image_height
-        };
-        self.center = DVec3::new(0.0, 0.0, 0.0);
-
-        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f64;
-
-        // Initialize viewport dimensions
-        let focal_length = 1.0;
-        let viewport_height = 2.0;
-        let viewport_width =
-            viewport_height * ((self.image_width as f64) / (self.image_height as f64));
-
-        // Create the vectors across the horizontal and down the vertical viewport edges.
-        let viewport_u = DVec3::new(viewport_width, 0.0, 0.0);
-        let viewport_v = DVec3::new(0.0, -viewport_height, 0.0);
-
-        // Create the horizontal and vertical delta vectors from pixel to pixel.
-        self.pixel_delta_u = viewport_u / self.image_width as f64;
-        self.pixel_delta_v = viewport_v / self.image_height as f64;
-
-        // Calculate the location of the upper left pixel.
-        let viewport_upper_left =
-            self.center - DVec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
-        self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
     }
 
     fn write_header(writer: &mut BufWriter<File>, width: &i32, height: &i32) -> () {
