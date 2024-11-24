@@ -28,7 +28,7 @@ fn main() {
     world.add(Box::new(Sphere::new(
         DVec3::new(-1.0, 0.0, -1.5),
         0.5,
-        material::Material::Dielectric {refraction_index: 1.0},
+        material::Material::Dielectric {refraction_index: 1.0 / 1.333},
     )));
 
     // Middle Ball
@@ -63,7 +63,7 @@ fn main() {
 
     cam.aspect_ratio = 4.0 / 2.4;
     cam.image_width = 1440;
-    cam.samples_per_pixel = 1500;
+    cam.samples_per_pixel = 100;
 
     cam.render(&world);
 }

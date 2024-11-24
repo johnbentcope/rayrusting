@@ -63,9 +63,18 @@ impl Material {
                 };
 
                 let unit_direction = r_in.direction.normalize();
-                let refracted = refract(unit_direction, rec.normal, ri);
 
-                *scattered = Ray::new(rec.p, refracted);
+                let cos_theta = (-1.0 * unit_direction).dot(rec.normal).min(1.0);
+                let sin_theta = (1.0- cos_theta*cos_theta).sqrt();
+
+                let cannot_refract = ri * sin_theta > 1.0;
+                let direction = if cannot_refract {
+                    reflect(unit_direction, rec.normal)
+                } else {
+                    refract(unit_direction, rec.normal, ri)
+                };
+
+                *scattered = Ray::new(rec.p, direction);
 
                 Some(true)
             }
