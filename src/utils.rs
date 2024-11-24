@@ -44,8 +44,16 @@ pub fn near_zero(test: &DVec3) -> bool {
 }
 
 pub fn reflect(v: DVec3, n: DVec3) -> DVec3 {
-    v - 2.0*v.dot(n)*n
+    v - 2.0 * v.dot(n) * n
 }
+
+pub fn refract(uv: DVec3, n: DVec3, etai_over_etat: f64) -> DVec3 {
+    let cos_theta = ((-1.0 * uv).dot(n)).min(1.0);
+    let r_out_perp = etai_over_etat * (uv + (cos_theta * n));
+    let r_out_parallel = -(1.0 * ((1.0 - r_out_perp.length_squared()).abs()).sqrt()) * n;
+    r_out_perp + r_out_parallel
+}
+
 // pub fn random_in_unit_sphere() -> DVec3 {
 //     let mut rng = rand::thread_rng();
 //     let mut v = DVec3::new(0.0, 0.0, 0.0);

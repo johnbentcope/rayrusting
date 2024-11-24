@@ -83,8 +83,6 @@ impl Camera {
                 return attenuation * Self::ray_color(&scattered, depth - 1, world);
             }
             return DVec3::new(0.0, 0.0, 0.0);
-            // let direction: DVec3 = crate::utils::random_on_hemisphere(rec.normal);
-            // return 0.5 * Self::ray_color(&Ray::new(rec.p, direction), depth - 1, world);
         }
 
         let unit_direction = r.direction.normalize();

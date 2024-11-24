@@ -18,6 +18,9 @@ pub enum Material {
         albedo: DVec3,
         fuzz: f64,
     },
+    Dielectric {
+        refraction_index: f64,
+    },
 }
 
 impl Material {
@@ -43,13 +46,28 @@ impl Material {
                 *attenuation = *albedo;
                 Some(true)
             }
-            Metal { albedo , fuzz} => {
+            Metal { albedo, fuzz } => {
                 let fuzz = if *fuzz > 1.0 { 1.0 } else { *fuzz };
                 let reflected = reflect(r_in.direction, rec.normal);
                 let reflected = reflected.normalize() + (fuzz * random_dvec3_unit());
                 *scattered = Ray::new(rec.p, reflected);
                 *attenuation = *albedo;
                 Some(scattered.direction.dot(rec.normal) > 0.0)
+            }
+            Dielectric { refraction_index } => {
+                *attenuation = DVec3::new(1.0, 1.0, 1.0);
+                let ri = if rec.front_face {
+                    1.0 / refraction_index
+                } else {
+                    *refraction_index
+                };
+
+                let unit_direction = r_in.direction.normalize();
+                let refracted = refract(unit_direction, rec.normal, ri);
+
+                *scattered = Ray::new(rec.p, refracted);
+
+                Some(true)
             }
         }
     }
