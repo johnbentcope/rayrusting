@@ -6,13 +6,12 @@ pub struct Ray {
     pub direction: DVec3,
 }
 
-impl Ray{
-    pub fn new(origin: DVec3, direction:  DVec3) -> Self {
-        Self { origin, direction }
+impl Ray {
+    pub fn new(origin: DVec3, direction: DVec3) -> Ray {
+        Ray { origin, direction }
     }
 
     pub fn at(&self, t: f64) -> DVec3 {
-        return self.origin + self.direction*t;
+        return self.origin + self.direction * t;
     }
-
 }
