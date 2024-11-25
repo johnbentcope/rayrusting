@@ -6,6 +6,8 @@ My latest rendered image:
 
 ![Latest rendered image](./image.png)
 
+Latest rendered image is enforced in my workspace with a pre-commit hook. No lying about being the "latest" render!
+
 ## Book(s) Used
 
 This is not me deriving computer graphics theory, just getting familiar with the Rust language.
