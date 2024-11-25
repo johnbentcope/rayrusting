@@ -17,8 +17,8 @@ fn main() {
 
     // Ground
     world.add(Box::new(Sphere::new(
-        DVec3::new(0.0, -100.6, -1.5),
-        100.0,
+        DVec3::new(0.0, -1000.6, -1.5),
+        1000.0,
         material::Material::Lambertian {
             albedo: DVec3::new(0.8, 0.8, 0.0),
         },
@@ -71,7 +71,7 @@ fn main() {
         },
     )));
 
-    // Lower Right Ball
+    // Lower Right Ball 
     world.add(Box::new(Sphere::new(
         DVec3::new(0.5, -0.42, -1.0),
         0.15,
@@ -86,8 +86,8 @@ fn main() {
     cam.image_width = 640;
     cam.samples_per_pixel = 10;
     cam.vfov = 40.0;
-    cam.look_from = DVec3::new(-2.0, 2.0, 1.0);
-    cam.look_at = DVec3::new(0.0, 0.0, -1.25);
+    cam.look_from = DVec3::new(-1.0, 0.5, 2.0);
+    cam.look_at = DVec3::new(-0.125, 0.0, -1.5);
     cam.look_up = DVec3::new(0.0, 1.0, 0.0);
 
     cam.render(&world);

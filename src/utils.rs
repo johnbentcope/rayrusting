@@ -33,13 +33,18 @@ pub fn near_zero(test: &DVec3) -> bool {
     test.length() < 0.00001
 }
 
-pub fn reflect(v: DVec3, n: DVec3) -> DVec3 {
-    v - 2.0 * v.dot(n) * n
+pub fn reflect(v: DVec3, n: DVec3) -> Option<DVec3> {
+    Some(v - 2.0 * v.dot(n) * n)
 }
 
-pub fn refract(uv: DVec3, n: DVec3, etai_over_etat: f64) -> DVec3 {
-    let cos_theta = ((-1.0 * uv).dot(n)).min(1.0);
-    let r_out_perp = etai_over_etat * (uv + (cos_theta * n));
-    let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * n;
-    r_out_perp + r_out_parallel
+pub fn refract(v: &DVec3, n: &DVec3, ni_over_nt: f64) -> Option<DVec3> {
+    let uv = v.normalize();
+    let dt = uv.dot(*n);
+    let discriminant = 1.0 - ni_over_nt.powi(2) * (1.0 - dt.powi(2));
+    if discriminant > 0.0 {
+        let refracted = ni_over_nt * (uv - n * dt) - n * discriminant.sqrt();
+        Some(refracted)
+    } else {
+        None
+    }
 }

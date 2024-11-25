@@ -49,7 +49,7 @@ impl Material {
             }
             Metal { albedo, fuzz } => {
                 let fuzz = if *fuzz > 1.0 { 1.0 } else { *fuzz };
-                let reflected = reflect(r_in.direction, rec.normal);
+                let reflected = reflect(r_in.direction, rec.normal).unwrap();
                 let reflected = reflected.normalize() + (fuzz * random_dvec3_unit());
                 *scattered = Ray::new(rec.p, reflected);
                 *attenuation = *albedo;
@@ -74,9 +74,9 @@ impl Material {
                 let mut rng = rand::thread_rng();
                 let direction =
                     if cannot_refract || Self::reflectance(cos_theta, ri) > rng.gen::<f64>() {
-                        reflect(unit_direction, rec.normal)
+                        reflect(unit_direction, rec.normal).unwrap()
                     } else {
-                        refract(rec.normal, unit_direction, ri)
+                        refract(&rec.normal, &unit_direction, ri).unwrap()
                     };
 
                 *scattered = Ray::new(rec.p, direction);
