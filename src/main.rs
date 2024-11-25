@@ -82,8 +82,8 @@ fn main() {
 
     let mut cam: Camera = Camera::new();
 
-    cam.aspect_ratio = 4.0 / 2.4;
-    cam.image_width = 1440;
+    cam.aspect_ratio = 4.0 / 3.0;
+    cam.image_width = 640;
     cam.samples_per_pixel = 10;
     cam.vfov = 40.0;
     cam.look_from = DVec3::new(-2.0, 2.0, 1.0);
