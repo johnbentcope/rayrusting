@@ -56,10 +56,8 @@ impl Material {
                 Some(scattered.direction.dot(rec.normal) > 0.0)
             }
             Dielectric { refraction_index } => {
-
                 // White, no tinting
                 *attenuation = DVec3::new(1.0, 1.0, 1.0);
-
 
                 let unit_direction = r_in.direction.normalize();
 
@@ -71,7 +69,7 @@ impl Material {
                 } else {
                     *refraction_index
                 };
-                
+
                 let cannot_refract = ri * sin_theta > 1.0;
                 let mut rng = rand::thread_rng();
                 let direction =

@@ -88,7 +88,7 @@ fn main() {
 
     cam.aspect_ratio = 4.0 / 2.4;
     cam.image_width = 1440;
-    cam.samples_per_pixel = 1500;
+    cam.samples_per_pixel = 10;
     cam.vfov = 40.0;
     cam.look_from = DVec3::new(-2.0, 2.0, 1.0);
     cam.look_at = DVec3::new(0.0, 0.0, -1.25);
