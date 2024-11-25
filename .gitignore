@@ -1,4 +1,14 @@
+##############################
+# Rust Language Ignores
 /target
 *.ppm
+
+##############################
+# Rust Profiling Ignores
 flamegraph.svg
 perf.data*
+
+
+##############################
+# VSCode Editor Ignores
+.vscode/
