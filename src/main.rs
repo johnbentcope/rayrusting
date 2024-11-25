@@ -6,8 +6,6 @@ mod ray;
 mod sphere;
 mod utils;
 
-use std::f64::consts::PI;
-
 use glam::DVec3;
 
 use camera::Camera;
@@ -16,8 +14,6 @@ use sphere::Sphere;
 
 fn main() {
     let mut world = HittableList::default();
-
-    let R = (PI / 4.0).cos();
 
     // Ground
     world.add(Box::new(Sphere::new(

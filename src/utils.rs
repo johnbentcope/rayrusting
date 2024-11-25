@@ -29,16 +29,6 @@ pub fn random_dvec3_unit() -> DVec3 {
     }
 }
 
-pub fn random_on_hemisphere(normal: DVec3) -> DVec3 {
-    let on_unit_sphere = random_dvec3_unit();
-    if on_unit_sphere.dot(normal) > 0.0 {
-        // In the same hemisphere as the normal
-        return on_unit_sphere;
-    } else {
-        return -on_unit_sphere;
-    }
-}
-
 pub fn near_zero(test: &DVec3) -> bool {
     test.length() < 0.00001
 }
@@ -53,13 +43,3 @@ pub fn refract(uv: DVec3, n: DVec3, etai_over_etat: f64) -> DVec3 {
     let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * n;
     r_out_perp + r_out_parallel
 }
-
-// pub fn random_in_unit_sphere() -> DVec3 {
-//     let mut rng = rand::thread_rng();
-//     let mut v = DVec3::new(0.0, 0.0, 0.0);
-//     while v.length() >= 1.0 {
-//         v = DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 2.0
-//             - DVec3::new(1.0, 1.0, 1.0);
-//     }
-//     v
-// }

@@ -1,5 +1,3 @@
-use std::f64::{INFINITY, NEG_INFINITY};
-
 pub struct Interval {
     pub min: f64,
     pub max: f64,
@@ -31,10 +29,10 @@ impl Interval {
 }
 
 pub const _EMPTY: Interval = Interval {
-    min: INFINITY,
-    max: NEG_INFINITY,
+    min: f64::INFINITY,
+    max: f64::NEG_INFINITY,
 };
 pub const _UNIVERSE: Interval = Interval {
-    min: NEG_INFINITY,
-    max: INFINITY,
+    min: f64::NEG_INFINITY,
+    max: f64::INFINITY,
 };

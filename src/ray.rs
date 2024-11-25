@@ -12,6 +12,6 @@ impl Ray {
     }
 
     pub fn at(&self, t: f64) -> DVec3 {
-        return self.origin + self.direction * t;
+        self.origin + self.direction * t
     }
 }

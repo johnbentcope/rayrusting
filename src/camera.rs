@@ -5,7 +5,6 @@ use crate::interval::Interval;
 use crate::ray::Ray;
 use glam::DVec3;
 use rand::Rng;
-use std::f64::INFINITY;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
@@ -98,7 +97,7 @@ impl Camera {
         Self::write_header(&mut writer, &self.image_width, &self.image_height);
 
         for row in 0..self.image_height {
-            if debug == true {
+            if debug {
                 let rem = self.image_height - 1;
                 println!("Writing scanline {row} of {rem}");
             }
@@ -123,7 +122,7 @@ impl Camera {
         let blue = DVec3::new(0.5, 0.7, 1.0);
         let white = DVec3::new(1.0, 1.0, 1.0);
 
-        if let Some(rec) = world.hit(r, Interval::new(0.001, INFINITY)) {
+        if let Some(rec) = world.hit(r, Interval::new(0.001, f64::INFINITY)) {
             let mut scattered = Ray::new(DVec3::new(0.0, 0.0, 0.0), DVec3::new(0.0, 0.0, 0.0));
             let mut attenuation = DVec3::new(0.0, 0.0, 0.0);
             if rec
@@ -138,7 +137,7 @@ impl Camera {
 
         let unit_direction = r.direction.normalize();
         let a = 0.5 * (unit_direction.y + 1.0);
-        return white.lerp(blue, a);
+        white.lerp(blue, a)
     }
 
     fn get_ray(&self, x: i32, y: i32) -> Ray {
@@ -150,17 +149,17 @@ impl Camera {
         let ray_origin = self.center;
         let ray_direction = pixel_sample - ray_origin;
 
-        return Ray::new(ray_origin, ray_direction);
+        Ray::new(ray_origin, ray_direction)
     }
 
     fn sample_square() -> DVec3 {
         let mut rng = rand::thread_rng();
 
         // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
-        return DVec3::new(rng.gen::<f64>() - 0.5, rng.gen::<f64>() - 0.5, 0.0);
+        DVec3::new(rng.gen::<f64>() - 0.5, rng.gen::<f64>() - 0.5, 0.0)
     }
 
-    fn write_header(writer: &mut BufWriter<File>, width: &i32, height: &i32) -> () {
+    fn write_header(writer: &mut BufWriter<File>, width: &i32, height: &i32) {
         writeln!(writer, "P3").unwrap();
         writeln!(writer, "{width} {height}").unwrap();
         writeln!(writer, "255").unwrap();
