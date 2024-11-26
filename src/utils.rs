@@ -6,7 +6,12 @@ use rand::Rng;
 // impl Utils{
 pub fn _random_dvec3() -> DVec3 {
     let mut rng = rand::thread_rng();
-    DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()).normalize()
+    DVec3::new(
+        rng.gen::<f64>() - 0.5,
+        rng.gen::<f64>() - 0.5,
+        rng.gen::<f64>() - 0.5,
+    )
+    .normalize()
 }
 
 pub fn random_dvec3_range(min: f64, max: f64) -> DVec3 {
@@ -31,7 +36,7 @@ pub fn random_dvec3_unit() -> DVec3 {
 
 pub fn random_in_unit_disc() -> DVec3 {
     let mut rng = rand::thread_rng();
-    DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), 0.0).normalize()
+    DVec3::new(rng.gen::<f64>() - 0.5, rng.gen::<f64>() - 0.5, 0.0).normalize() * rng.gen::<f64>()
 }
 
 pub fn near_zero(test: &DVec3) -> bool {

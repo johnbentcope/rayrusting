@@ -82,7 +82,7 @@ fn main() {
     )));
     let mut rng = rand::thread_rng();
 
-    for _ in 0..10 {
+    for _ in 0..50 {
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
             DVec3::new(
@@ -96,7 +96,7 @@ fn main() {
             },
         )));
     }
-    for _ in 0..10 {
+    for _ in 0..50 {
         // Metallic mini balls
         world.add(Box::new(Sphere::new(
             DVec3::new(
@@ -111,7 +111,7 @@ fn main() {
             },
         )));
     }
-    for _ in 0..10 {
+    for _ in 0..50 {
         // Dielectric mini balls
         world.add(Box::new(Sphere::new(
             DVec3::new(
@@ -129,15 +129,15 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 800;
+    cam.samples_per_pixel = 1500;
 
     cam.vfov = 40.0;
     cam.look_from = DVec3::new(-1.0, 0.5, 2.0);
     cam.look_at = DVec3::new(-0.125, -0.4, -1.5);
     cam.look_up = DVec3::new(0.0, 1.0, 0.0);
 
-    cam.defocus_angle = 10.0;
+    cam.defocus_angle = 3.0;
     cam.focus_dist = 3.4;
 
     cam.render(&world);

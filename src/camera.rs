@@ -159,7 +159,11 @@ impl Camera {
             + ((x as f64 + offset.x) * self.pixel_delta_u)
             + ((y as f64 + offset.y) * self.pixel_delta_v);
 
-        let ray_origin = if self.defocus_angle <= 0.0 { self.center } else { Self::defocus_disc_sample(self) };
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            self.center
+        } else {
+            Self::defocus_disc_sample(self)
+        };
         let ray_direction = pixel_sample - ray_origin;
 
         Ray::new(ray_origin, ray_direction)
