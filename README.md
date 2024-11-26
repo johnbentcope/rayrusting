@@ -15,11 +15,19 @@ My latest rendered image:
 - [ ] Sequential rendering across the full image
 - [ ] Loading scenes from files
 - [ ] Render triangles
+- [ ] Subsurface scattering
 - [ ] Render STLs
 - [ ] Render OBJs
 - [ ] Unified material struct instead of enums-per-material
 - [ ] Batch mode to only render part of image and return
 - [ ] GPU compute
+
+## Project Goals
+
+- [ ] Cornel box render
+- [ ] "Icy" bouncy ball material render
+- [ ] Stanford dragon model render
+- [ ] Batch process pipeline
 
 ## Book(s) Used
 
