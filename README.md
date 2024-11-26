@@ -28,6 +28,7 @@ My latest rendered image:
 - [ ] "Icy" bouncy ball material render
 - [ ] Stanford dragon model render
 - [ ] Batch process pipeline
+- [ ] Rerender a Processing Daily
 - [X] Pre-commit hook to upload latest rendered image automatically
 - [X] Git LFS to limit repo size creep with images
 
