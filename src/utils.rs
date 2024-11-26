@@ -29,22 +29,11 @@ pub fn random_dvec3_unit() -> DVec3 {
     }
 }
 
+pub fn random_in_unit_disc() -> DVec3 {
+    let mut rng = rand::thread_rng();
+    DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), 0.0).normalize()
+}
+
 pub fn near_zero(test: &DVec3) -> bool {
     test.length() < 0.00001
-}
-
-pub fn reflect(v: DVec3, n: DVec3) -> Option<DVec3> {
-    Some(v - 2.0 * v.dot(n) * n)
-}
-
-pub fn refract(v: &DVec3, n: &DVec3, ni_over_nt: f64) -> Option<DVec3> {
-    let uv = v.normalize();
-    let dt = uv.dot(*n);
-    let discriminant = 1.0 - ni_over_nt.powi(2) * (1.0 - dt.powi(2));
-    if discriminant > 0.0 {
-        let refracted = ni_over_nt * (uv - n * dt) - n * discriminant.sqrt();
-        Some(refracted)
-    } else {
-        None
-    }
 }

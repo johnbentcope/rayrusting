@@ -52,5 +52,5 @@ As such, I'm following along with existing resources implementing their solution
 - [X] Chapter 10 - Metal
 - [X] Chapter 11 - Dielectrics
 - [X] Chapter 12 - Positionable Camera
-- [ ] Chapter 13 - Defocus Blur
+- [X] Chapter 13 - Defocus Blur
 - [ ] Chapter 14 - Next Steps

@@ -3,6 +3,7 @@ use crate::hittable::Hittable;
 use crate::hittable::HittableList;
 use crate::interval::Interval;
 use crate::ray::Ray;
+use crate::utils::random_in_unit_disc;
 use glam::DVec3;
 use rand::Rng;
 use std::fs::File;
@@ -23,6 +24,11 @@ pub struct Camera {
     pub look_from: DVec3,
     pub look_at: DVec3,
     pub look_up: DVec3,
+
+    pub defocus_angle: f64,
+    pub focus_dist: f64,
+    defocus_disc_u: DVec3,
+    defocus_disc_v: DVec3,
 }
 
 impl Camera {
@@ -42,6 +48,10 @@ impl Camera {
             look_from: DVec3::new(0.0, 0.0, 0.0),
             look_at: DVec3::new(0.0, 0.0, -1.0),
             look_up: DVec3::new(0.0, 1.0, 0.0),
+            defocus_angle: 0.0,
+            focus_dist: 10.0,
+            defocus_disc_u: DVec3::new(0.0, 1.0, 0.0),
+            defocus_disc_v: DVec3::new(0.0, 1.0, 0.0),
         }
     }
 
@@ -59,10 +69,9 @@ impl Camera {
         self.center = self.look_from;
 
         // Initialize viewport dimensions
-        let focal_length = (self.look_from - self.look_at).length();
         let theta = self.vfov.to_radians();
         let h = (theta / 2.0).tan();
-        let viewport_height = 2.0 * h * focal_length;
+        let viewport_height = 2.0 * h * self.focus_dist;
         let viewport_width =
             viewport_height * ((self.image_width as f64) / (self.image_height as f64));
 
@@ -80,8 +89,12 @@ impl Camera {
 
         // Calculate the location of the upper left pixel.
         let viewport_upper_left =
-            self.center - focal_length * w - viewport_u / 2.0 - viewport_v / 2.0;
+            self.center - (self.focus_dist * w) - viewport_u / 2.0 - viewport_v / 2.0;
         self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
+
+        let defocus_radius = self.focus_dist * (self.defocus_angle / 2.0).to_radians().tan();
+        self.defocus_disc_u = u * defocus_radius;
+        self.defocus_disc_v = v * defocus_radius;
     }
 
     pub fn render(&mut self, world: &HittableList) {
@@ -146,10 +159,15 @@ impl Camera {
             + ((x as f64 + offset.x) * self.pixel_delta_u)
             + ((y as f64 + offset.y) * self.pixel_delta_v);
 
-        let ray_origin = self.center;
+        let ray_origin = if self.defocus_angle <= 0.0 { self.center } else { Self::defocus_disc_sample(self) };
         let ray_direction = pixel_sample - ray_origin;
 
         Ray::new(ray_origin, ray_direction)
+    }
+
+    fn defocus_disc_sample(&self) -> DVec3 {
+        let p = random_in_unit_disc();
+        self.center + (p[0] * self.defocus_disc_u) + (p[1] * self.defocus_disc_v)
     }
 
     fn sample_square() -> DVec3 {

@@ -49,7 +49,7 @@ impl Material {
             }
             Metal { albedo, fuzz } => {
                 let fuzz = if *fuzz > 1.0 { 1.0 } else { *fuzz };
-                let reflected = reflect(r_in.direction, rec.normal).unwrap();
+                let reflected = Self::reflect(r_in.direction, rec.normal).unwrap();
                 let reflected = reflected.normalize() + (fuzz * random_dvec3_unit());
                 *scattered = Ray::new(rec.p, reflected);
                 *attenuation = *albedo;
@@ -74,9 +74,9 @@ impl Material {
                 let mut rng = rand::thread_rng();
                 let direction =
                     if cannot_refract || Self::reflectance(cos_theta, ri) > rng.gen::<f64>() {
-                        reflect(unit_direction, rec.normal).unwrap()
+                        Self::reflect(unit_direction, rec.normal).unwrap()
                     } else {
-                        refract(&rec.normal, &unit_direction, ri).unwrap()
+                        Self::refract(&rec.normal, &unit_direction, ri).unwrap()
                     };
 
                 *scattered = Ray::new(rec.p, direction);
@@ -91,5 +91,21 @@ impl Material {
         let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
         let r0 = r0 * r0;
         r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
+    }
+
+    pub fn reflect(v: DVec3, n: DVec3) -> Option<DVec3> {
+        Some(v - 2.0 * v.dot(n) * n)
+    }
+
+    pub fn refract(v: &DVec3, n: &DVec3, ni_over_nt: f64) -> Option<DVec3> {
+        let uv = v.normalize();
+        let dt = uv.dot(*n);
+        let discriminant = 1.0 - ni_over_nt.powi(2) * (1.0 - dt.powi(2));
+        if discriminant > 0.0 {
+            let refracted = ni_over_nt * (uv - n * dt) - n * discriminant.sqrt();
+            Some(refracted)
+        } else {
+            None
+        }
     }
 }
