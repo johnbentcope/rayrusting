@@ -18,6 +18,8 @@ My latest rendered image:
 - [ ] Render STLs
 - [ ] Render OBJs
 - [ ] Unified material struct instead of enums-per-material
+- [ ] Batch mode to only render part of image and return
+- [ ] GPU compute
 
 ## Book(s) Used
 
