@@ -6,6 +6,13 @@ My latest rendered image:
 
 ![Latest rendered image](./image.png)
 
+## To-Do list
+
+- [ ] Unit tests
+- [ ] GitHub Actions
+- [ ] Closed loop ray casting per pixel
+- [ ] Unified material struct instead of enums-per-material
+
 ## Book(s) Used
 
 This is not me deriving computer graphics theory, just getting familiar with the Rust language.
