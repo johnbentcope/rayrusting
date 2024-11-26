@@ -11,6 +11,7 @@ use glam::DVec3;
 use camera::Camera;
 use hittable::HittableList;
 use sphere::Sphere;
+use rand::Rng;
 
 fn main() {
     let mut world = HittableList::default();
@@ -79,15 +80,50 @@ fn main() {
             albedo: DVec3::new(1.0, 1.0, 1.0),
         },
     )));
+    let mut rng = rand::thread_rng();
+    for i in 0..500 {
+
+        // Lower Right Ball 
+        world.add(Box::new(Sphere::new(
+            DVec3::new((rng.gen::<f64>()-0.5)*10.0, 0.5*(rng.gen::<f64>()-0.5)-0.42, (rng.gen::<f64>()-0.5)*10.0),
+            0.05,
+            material::Material::Lambertian {
+                albedo: DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()),
+            },
+        )));
+    }
+    for i in 0..500 {
+
+        // Lower Right Ball 
+        world.add(Box::new(Sphere::new(
+            DVec3::new((rng.gen::<f64>()-0.5)*10.0, 0.5*(rng.gen::<f64>()-0.5)-0.42, (rng.gen::<f64>()-0.5)*10.0),
+            0.05,
+        material::Material::Metal { 
+                albedo: DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()),
+                fuzz: rng.gen::<f64>()/2.0,
+            },
+        )));
+    }
+    for i in 0..500 {
+
+        // Lower Right Ball 
+        world.add(Box::new(Sphere::new(
+            DVec3::new((rng.gen::<f64>()-0.5)*10.0, 0.5*(rng.gen::<f64>()-0.5)-0.42, (rng.gen::<f64>()-0.5)*10.0),
+            0.05,
+            material::Material::Dielectric {
+                refraction_index: 1.0 / (rng.gen::<f64>()+0.5),
+            },
+        )));
+    }
 
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 640;
-    cam.samples_per_pixel = 10;
+    cam.image_width = 1440;
+    cam.samples_per_pixel = 1500;
     cam.vfov = 40.0;
     cam.look_from = DVec3::new(-1.0, 0.5, 2.0);
-    cam.look_at = DVec3::new(-0.125, 0.0, -1.5);
+    cam.look_at = DVec3::new(-0.125, -0.4, -1.5);
     cam.look_up = DVec3::new(0.0, 1.0, 0.0);
 
     cam.render(&world);
