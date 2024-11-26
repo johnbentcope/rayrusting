@@ -6,7 +6,7 @@ My latest rendered image:
 
 ![Latest rendered image](./image.png)
 
-## To-Do list
+## To-Do
 
 - [ ] Unit tests
 - [ ] GitHub Actions
@@ -30,6 +30,10 @@ My latest rendered image:
 - [ ] Batch process pipeline
 - [X] Pre-commit hook to upload latest rendered image automatically
 - [X] Git LFS to limit repo size creep with images
+
+## Known bugs
+
+- [ ] Dielectric refraction/reflection math
 
 ## Book(s) Used
 
