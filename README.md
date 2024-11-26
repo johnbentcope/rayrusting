@@ -31,10 +31,6 @@ My latest rendered image:
 - [X] Pre-commit hook to upload latest rendered image automatically
 - [X] Git LFS to limit repo size creep with images
 
-## Known bugs
-
-- [ ] Dielectric refraction/reflection math
-
 ## Book(s) Used
 
 This is not me deriving computer graphics theory, just getting familiar with the Rust language.
