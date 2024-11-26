@@ -11,6 +11,12 @@ My latest rendered image:
 - [ ] Unit tests
 - [ ] GitHub Actions
 - [ ] Closed loop ray casting per pixel
+- [ ] GUI mode for adjusting parameters
+- [ ] Sequential rendering across the full image
+- [ ] Loading scenes from files
+- [ ] Render triangles
+- [ ] Render STLs
+- [ ] Render OBJs
 - [ ] Unified material struct instead of enums-per-material
 
 ## Book(s) Used
