@@ -39,7 +39,25 @@ This is not me deriving computer graphics theory, just getting familiar with the
 
 As such, I'm following along with existing resources implementing their solutions in Rust as an exercise.
 
+
+
+### Ray Tracing The Next Week
+
+[_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html)
+
+- [ ] Chapter  2 - Motion Blur
+- [ ] Chapter  3 - Bounding Volume Hierarchies
+- [ ] Chapter  4 - Texture Mapping
+- [ ] Chapter  5 - Perlin Noise
+- [ ] Chapter  6 - Quadrilaterals
+- [ ] Chapter  7 - Lights
+- [ ] Chapter  8 - Instances
+- [ ] Chapter  9 - Volumes
+- [ ] Chapter 10 - A Scene Testing All New Features
+
 ### Ray Tracing In One Weekend
+
+[_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 
 - [X] Chapter  1 - Overview
 - [X] Chapter  2 - Output an Image
