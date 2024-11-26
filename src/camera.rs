@@ -6,8 +6,10 @@ use crate::ray::Ray;
 use crate::utils::random_in_unit_disc;
 use glam::DVec3;
 use rand::Rng;
+use rayon::prelude::*;
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use std::sync::{Arc, Mutex};
 
 pub struct Camera {
     pub aspect_ratio: f32,
@@ -114,7 +116,8 @@ impl Camera {
                 let rem = self.image_height - 1;
                 println!("Writing scanline {row} of {rem}");
             }
-            for col in 0..self.image_width {
+            let row_buffer: Arc<Mutex<Vec<(usize, DVec3)>>> = Arc::new(Mutex::new(Vec::new()));
+            (0..self.image_width).into_par_iter().for_each(|col| {
                 let mut pixel_color = DVec3::new(0.0, 0.0, 0.0);
 
                 for _ in 0..self.samples_per_pixel {
@@ -123,6 +126,12 @@ impl Camera {
                 }
 
                 let pixel_color = self.pixel_samples_scale * pixel_color;
+                let mut buffer = row_buffer.lock().unwrap();
+                buffer.push((col.try_into().unwrap(), pixel_color));
+            });
+            let mut row_buffer = Arc::try_unwrap(row_buffer).unwrap().into_inner().unwrap();
+            row_buffer.sort_by_key(|&(col, _)| col);
+            for (_, pixel_color) in row_buffer {
                 Self::write_color(&mut writer, &pixel_color).unwrap();
             }
         }

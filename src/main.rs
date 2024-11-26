@@ -129,7 +129,7 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 800;
+    cam.image_width = 1440;
     cam.samples_per_pixel = 1500;
 
     cam.vfov = 40.0;

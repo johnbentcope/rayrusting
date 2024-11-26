@@ -20,6 +20,7 @@ My latest rendered image:
 - [ ] Render OBJs
 - [ ] Unified material struct instead of enums-per-material
 - [ ] Batch mode to only render part of image and return
+- [X] Multithreaded CPU rendering
 - [ ] GPU compute
 
 ## Project Goals
@@ -53,4 +54,4 @@ As such, I'm following along with existing resources implementing their solution
 - [X] Chapter 11 - Dielectrics
 - [X] Chapter 12 - Positionable Camera
 - [X] Chapter 13 - Defocus Blur
-- [ ] Chapter 14 - Next Steps
+- [X] Chapter 14 - Next Steps

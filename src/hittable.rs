@@ -34,7 +34,7 @@ impl HitRecord {
         };
     }
 }
-pub trait Hittable {
+pub trait Hittable: Sync {
     fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
 }
 
