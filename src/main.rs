@@ -129,15 +129,15 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 1440;
-    cam.samples_per_pixel = 1500;
+    cam.image_width = 320;
+    cam.samples_per_pixel = 100;
 
     cam.vfov = 40.0;
     cam.look_from = DVec3::new(-1.0, 0.5, 2.0);
     cam.look_at = DVec3::new(-0.125, -0.4, -1.5);
     cam.look_up = DVec3::new(0.0, 1.0, 0.0);
 
-    cam.defocus_angle = 3.0;
+    cam.defocus_angle = 1.0;
     cam.focus_dist = 3.4;
 
     cam.render(&world);
