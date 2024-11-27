@@ -149,7 +149,7 @@ mod tests {
 
     // TODO make another that exits the sphere at the same point
     #[test]
-    fn scatter_dielectric_ref_1_5_test() {
+    fn scatter_dielectric_ref_1_5_entry_test() {
         let rec = HitRecord {
             p: DVec3::ZERO,
             normal: DVec3::Y,
@@ -171,6 +171,33 @@ mod tests {
 
         let expected = DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize();
         // assert_eq!(scattered.direction, expected);
+        assert!((scattered.direction - expected).length().abs() < f64::EPSILON);
+    }
+
+    // TODO make another that exits the sphere at the same point
+    #[test]
+    fn scatter_dielectric_ref_1_5_exit_test() {
+        let rec = HitRecord {
+            p: DVec3::ZERO,
+            normal: DVec3::Y,
+            t: 1.0,
+            front_face: false,
+            mat: material::Material::Dielectric {
+                refraction_index: (1.5),
+            },
+        };
+
+        let r = Ray::new(
+            DVec3::new(-1.0, 1.0, 0.0),
+            DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize(),
+        );
+
+        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec).unwrap();
+
+        let _reflected = DVec3::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
+
+        let expected = DVec3::new(1.0, -1.0, 0.0).normalize();
+        
         assert!((scattered.direction - expected).length().abs() < f64::EPSILON);
     }
 }
