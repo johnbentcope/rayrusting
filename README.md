@@ -10,10 +10,11 @@ My latest rendered image:
 
 ## To-Do
 
-- [ ] Unit tests
-- [ ] GitHub Actions
+- [X] Start unit testing
+- [X] Start GitHub Actions
 - [ ] Closed loop ray casting per pixel
 - [ ] GUI mode for adjusting parameters
+- [ ] Make hit records automatically set ni_ovet_nt
 - [ ] Sequential rendering across the full image
 - [ ] Loading scenes from files
 - [ ] Render triangles
@@ -24,7 +25,7 @@ My latest rendered image:
 - [ ] Batch mode to only render part of image and return
 - [X] Multithreaded CPU rendering
 - [ ] GPU compute
-- [ ] Fraunhofer diffraction?
+- [ ] Fraunhofer diffraction
 
 ## Project Goals
 
