@@ -14,6 +14,10 @@ use rand::Rng;
 use sphere::Sphere;
 
 fn main() {
+    // Set up rng for later
+    let mut rng = rand::thread_rng();
+
+    // Create a scene to add objects to
     let mut world = HittableList::default();
 
     // Ground
@@ -34,14 +38,14 @@ fn main() {
         },
     )));
 
-    // Left Ball Air Bubble
-    world.add(Box::new(Sphere::new(
-        DVec3::new(-1.0, 0.0, -1.5),
-        0.4,
-        material::Material::Dielectric {
-            refraction_index: 1.0 / 1.5,
-        },
-    )));
+    // // Left Ball Air Bubble
+    // world.add(Box::new(Sphere::new(
+    //     DVec3::new(-1.0, 0.0, -1.5),
+    //     0.4,
+    //     material::Material::Dielectric {
+    //         refraction_index: 1.0 / 1.5,
+    //     },
+    // )));
 
     // Middle Ball
     world.add(Box::new(Sphere::new(
@@ -80,7 +84,6 @@ fn main() {
             albedo: DVec3::new(1.0, 1.0, 1.0),
         },
     )));
-    let mut rng = rand::thread_rng();
 
     for _ in 0..50 {
         // Lambertian mini balls
@@ -129,7 +132,7 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 320;
+    cam.image_width = 1440;
     cam.samples_per_pixel = 100;
 
     cam.vfov = 40.0;
@@ -137,7 +140,7 @@ fn main() {
     cam.look_at = DVec3::new(-0.125, -0.4, -1.5);
     cam.look_up = DVec3::new(0.0, 1.0, 0.0);
 
-    cam.defocus_angle = 1.0;
+    cam.defocus_angle = 0.0;
     cam.focus_dist = 3.4;
 
     cam.render(&world);

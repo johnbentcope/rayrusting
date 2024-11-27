@@ -60,10 +60,10 @@ impl Material {
             }
             Dielectric { refraction_index } => {
                 // White, no tinting
-                let attenuation = DVec3::new(1.0, 1.0, 1.0);
+                let attenuation = DVec3::new(0.9, 0.9, 0.9);
 
                 let ri = if rec.front_face {
-                    1.0 / refraction_index
+                    1.0 / (*refraction_index)
                 } else {
                     *refraction_index
                 };

@@ -62,13 +62,22 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
+    // Casts a Ray into a scene, and returns the closest HitRecord
     fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
+        // Set the water line to the max distance
         let mut closest_so_far = ray_t.max;
+
+        // Initialize a hit_record to return
         let mut hit_record: Option<HitRecord> = None;
 
+        // Loop through all objects in the scene
         for object in self.objects.iter() {
+            // If an object returns that there is a valid hit between the minimum distance and the water line
             if let Some(temp_rec) = object.hit(r, Interval::new(ray_t.min, closest_so_far)) {
+                // Update the water line
                 closest_so_far = temp_rec.t;
+
+                // Update hit_record with the HitRecord of the hit
                 hit_record = Some(temp_rec);
             }
         }

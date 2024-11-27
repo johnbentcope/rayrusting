@@ -66,6 +66,7 @@ impl Camera {
             self.image_height
         };
 
+        // Scaling factor to divide a pixel's color by when summating all contributing samples
         self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f64;
 
         self.center = self.look_from;
@@ -77,8 +78,11 @@ impl Camera {
         let viewport_width =
             viewport_height * ((self.image_width as f64) / (self.image_height as f64));
 
+        // i unit vector from camera's frame of reference
         let w = (self.look_from - self.look_at).normalize();
+        // j unit vector from camera's frame of reference
         let u = self.look_up.cross(w);
+        // k unit vector from camera's frame of reference
         let v = w.cross(u);
 
         // Create the vectors across the horizontal and down the vertical viewport edges.
@@ -116,6 +120,8 @@ impl Camera {
                 let rem = self.image_height - 1;
                 println!("Writing scanline {row} of {rem}");
             }
+
+            // Create a buffer to store pixels and coordinates in for the asynchronous rendering
             let row_buffer: Arc<Mutex<Vec<(usize, DVec3)>>> = Arc::new(Mutex::new(Vec::new()));
             (0..self.image_width).into_par_iter().for_each(|col| {
                 let mut pixel_color = DVec3::new(0.0, 0.0, 0.0);
@@ -129,8 +135,14 @@ impl Camera {
                 let mut buffer = row_buffer.lock().unwrap();
                 buffer.push((col.try_into().unwrap(), pixel_color));
             });
+
+            // Once the row is fully drawn by each thread, get the row_buffer and allow mutation
             let mut row_buffer = Arc::try_unwrap(row_buffer).unwrap().into_inner().unwrap();
+
+            // sort the row_buffer by column position
             row_buffer.sort_by_key(|&(col, _)| col);
+
+            // Print it
             for (_, pixel_color) in row_buffer {
                 Self::write_color(&mut writer, &pixel_color).unwrap();
             }
@@ -139,7 +151,7 @@ impl Camera {
 
     fn ray_color(r: &Ray, depth: i32, world: &HittableList) -> DVec3 {
         if depth <= 0 {
-            return DVec3::new(0.0, 0.0, 1.0);
+            return DVec3::new(1.0, 0.0, 1.0);
         }
         let blue = DVec3::new(0.5, 0.7, 1.0);
         let white = DVec3::new(1.0, 1.0, 1.0);
