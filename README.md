@@ -6,6 +6,8 @@ My latest rendered image:
 
 ![Latest rendered image](./image.png)
 
+[![CI Status](https://github.com/johnbentcope/rayrusting/actions/workflows/ci.yml/badge.svg)](https://github.com/johnbentcope/rayrusting/actions)
+
 ## To-Do
 
 - [ ] Unit tests
