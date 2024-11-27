@@ -145,15 +145,12 @@ impl Camera {
         let white = DVec3::new(1.0, 1.0, 1.0);
 
         if let Some(rec) = world.hit(r, Interval::new(0.001, f64::INFINITY)) {
-            let (attenuation, scattered, keeps_bouncing) = rec
-                .mat
-                .scatter(*r, &rec)
-                .unwrap();
+            let (attenuation, scattered, keeps_bouncing) = rec.mat.scatter(*r, &rec).unwrap();
             if keeps_bouncing {
                 return attenuation * Self::ray_color(&scattered, depth - 1, world);
             } else {
                 return DVec3::new(0.0, 0.0, 0.0);
-            } 
+            }
         }
 
         let unit_direction = r.direction.normalize();

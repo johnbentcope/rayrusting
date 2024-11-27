@@ -117,8 +117,8 @@ mod tests {
         let r_in = DVec3::new(1.0, -1.0, 0.0).normalize();
         let normal = DVec3::new(0.0, 1.0, 0.0);
 
-        let refract = Material::refract(&r_in, &normal, 1.0/1.5).unwrap();
-        let expected = DVec3::new((2.0_f64.sqrt())/3.0 , -(7.0_f64.sqrt())/3.0, 0.0).normalize();
+        let refract = Material::refract(&r_in, &normal, 1.0 / 1.5).unwrap();
+        let expected = DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize();
 
         assert!((expected - refract).length().abs() < f64::EPSILON);
     }
