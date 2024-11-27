@@ -153,8 +153,6 @@ impl Camera {
         if depth <= 0 {
             return DVec3::new(1.0, 0.0, 1.0);
         }
-        let blue = DVec3::new(0.5, 0.7, 1.0);
-        let white = DVec3::new(1.0, 1.0, 1.0);
 
         if let Some(rec) = world.hit(r, Interval::new(0.001, f64::INFINITY)) {
             let (attenuation, scattered, keeps_bouncing) = rec.mat.scatter(*r, &rec).unwrap();
@@ -165,6 +163,9 @@ impl Camera {
             }
         }
 
+        // If nothing was hit before the depth base case, return the sky box color
+        let blue = DVec3::new(0.5, 0.7, 1.0);
+        let white = DVec3::new(1.0, 1.0, 1.0);
         let unit_direction = r.direction.normalize();
         let a = 0.5 * (unit_direction.y + 1.0);
         white.lerp(blue, a)

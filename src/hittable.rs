@@ -5,11 +5,11 @@ use glam::DVec3;
 
 // #[derive(Debug, Clone, Copy, Default)]
 pub struct HitRecord {
-    pub p: DVec3,
-    pub normal: DVec3,
-    pub t: f64,
-    pub front_face: bool,
-    pub mat: Material,
+    pub p: DVec3,         // point of hit
+    pub normal: DVec3,    // normal vector at point of hit
+    pub t: f64,           // distance traveled to hit
+    pub front_face: bool, // did ray intersect the front face of the object
+    pub mat: Material,    // what material was hit
 }
 
 impl HitRecord {

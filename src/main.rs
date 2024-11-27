@@ -8,10 +8,10 @@ mod utils;
 
 use glam::DVec3;
 
+use crate::sphere::sphere::Sphere;
 use camera::Camera;
 use hittable::HittableList;
 use rand::Rng;
-use sphere::Sphere;
 
 fn main() {
     // Set up rng for later
@@ -132,7 +132,7 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 1440;
+    cam.image_width = 800;
     cam.samples_per_pixel = 100;
 
     cam.vfov = 40.0;
