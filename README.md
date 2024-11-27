@@ -24,6 +24,7 @@ My latest rendered image:
 - [ ] Batch mode to only render part of image and return
 - [X] Multithreaded CPU rendering
 - [ ] GPU compute
+- [ ] Fraunhofer diffraction?
 
 ## Project Goals
 
