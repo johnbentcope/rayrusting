@@ -3,7 +3,7 @@ use crate::material::Material;
 use crate::ray::Ray;
 use glam::DVec3;
 
-// #[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct HitRecord {
     pub p: DVec3,         // point of hit
     pub normal: DVec3,    // normal vector at point of hit
@@ -34,8 +34,9 @@ impl HitRecord {
         };
     }
 }
+
 pub trait Hittable: Sync {
-    fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, ray_t: Interval, debug: bool) -> Option<HitRecord>;
 }
 
 #[derive(Default)]
@@ -63,19 +64,25 @@ impl HittableList {
 
 impl Hittable for HittableList {
     // Casts a Ray into a scene, and returns the closest HitRecord
-    fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
+    fn hit(&self, r: &Ray, ray_t: Interval, debug: bool) -> Option<HitRecord> {
         // Set the water line to the max distance
         let mut closest_so_far = ray_t.max;
-
+        if debug {
+            println!("hittable::hit::closest_so_far::{:?}", closest_so_far);
+            println!("hittable::hit::ray_t::{:?}", ray_t);
+        }
         // Initialize a hit_record to return
         let mut hit_record: Option<HitRecord> = None;
 
         // Loop through all objects in the scene
         for object in self.objects.iter() {
             // If an object returns that there is a valid hit between the minimum distance and the water line
-            if let Some(temp_rec) = object.hit(r, Interval::new(ray_t.min, closest_so_far)) {
+            if let Some(temp_rec) = object.hit(r, Interval::new(ray_t.min, closest_so_far), debug) {
                 // Update the water line
                 closest_so_far = temp_rec.t;
+                if debug {
+                    println!("hittable::hit::closest_so_far(loop)::{:?}", closest_so_far);
+                }
 
                 // Update hit_record with the HitRecord of the hit
                 hit_record = Some(temp_rec);

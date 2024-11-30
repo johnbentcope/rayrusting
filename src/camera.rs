@@ -4,6 +4,7 @@ use crate::hittable::HittableList;
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::utils::random_in_unit_disc;
+use core::f64;
 use glam::DVec3;
 use rand::Rng;
 use rayon::prelude::*;
@@ -21,7 +22,7 @@ pub struct Camera {
     pixel_delta_v: DVec3,
     pub samples_per_pixel: i32,
     pixel_samples_scale: f64,
-    max_depth: i32,
+    pub max_depth: i32,
     pub vfov: f64,
     pub look_from: DVec3,
     pub look_at: DVec3,
@@ -123,12 +124,17 @@ impl Camera {
 
             // Create a buffer to store pixels and coordinates in for the asynchronous rendering
             let row_buffer: Arc<Mutex<Vec<(usize, DVec3)>>> = Arc::new(Mutex::new(Vec::new()));
+
             (0..self.image_width).into_par_iter().for_each(|col| {
                 let mut pixel_color = DVec3::new(0.0, 0.0, 0.0);
 
                 for _ in 0..self.samples_per_pixel {
                     let r = Self::get_ray(self, col, row);
-                    pixel_color += Self::ray_color(&r, self.max_depth, world);
+                    let debug2 = false; //  = col == 400 && row == 400;
+                    if debug2 {
+                        println!("camera::self.look_from: {:?}", self.look_from);
+                    }
+                    pixel_color += Self::ray_color(r, self.max_depth, world, debug2);
                 }
 
                 let pixel_color = self.pixel_samples_scale * pixel_color;
@@ -149,15 +155,29 @@ impl Camera {
         }
     }
 
-    fn ray_color(r: &Ray, depth: i32, world: &HittableList) -> DVec3 {
+    // TODO - Convert this from recursive to iterative
+    fn ray_color(r: Ray, depth: i32, world: &HittableList, debug: bool) -> DVec3 {
         if depth <= 0 {
-            return DVec3::new(1.0, 0.0, 1.0);
+            return DVec3::new(0.0, 0.0, 0.0);
         }
 
-        if let Some(rec) = world.hit(r, Interval::new(0.001, f64::INFINITY)) {
-            let (attenuation, scattered, keeps_bouncing) = rec.mat.scatter(*r, &rec).unwrap();
+        if debug {
+            println!("Checking for hit at depth {}:", depth);
+        }
+
+        if let Some(rec) = world.hit(&r, Interval::new(f64::EPSILON, f64::INFINITY), debug) {
+            if debug {
+                println!("Did hit. Getting attenuation, scatter:");
+            }
+            let (attenuation, scattered, keeps_bouncing) = rec.mat.scatter(r, &rec, debug).unwrap();
             if keeps_bouncing {
-                return attenuation * Self::ray_color(&scattered, depth - 1, world);
+                if debug {
+                    println!("camera::ray_color::rec: {:?}", rec);
+                    println!("camera::ray_color::scattered: {:?}", scattered);
+                    println!("!!!");
+                }
+                return attenuation
+                    * Self::ray_color(scattered, depth - 1, world, debug && (depth - 1) >= 9);
             } else {
                 return DVec3::new(0.0, 0.0, 0.0);
             }
@@ -172,7 +192,12 @@ impl Camera {
     }
 
     fn get_ray(&self, x: i32, y: i32) -> Ray {
-        let offset = Self::sample_square();
+        let offset = if self.samples_per_pixel > 1 {
+            Self::sample_square()
+        } else {
+            DVec3::ZERO
+        };
+
         let pixel_sample = self.pixel00_loc
             + ((x as f64 + offset.x) * self.pixel_delta_u)
             + ((y as f64 + offset.y) * self.pixel_delta_v);
@@ -182,7 +207,8 @@ impl Camera {
         } else {
             Self::defocus_disc_sample(self)
         };
-        let ray_direction = pixel_sample - ray_origin;
+
+        let ray_direction = (pixel_sample - ray_origin).normalize();
 
         Ray::new(ray_origin, ray_direction)
     }

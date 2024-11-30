@@ -2,7 +2,7 @@ use crate::hittable::HitRecord;
 // Import necessary modules
 use crate::ray::Ray;
 use crate::utils::*;
-// use rand::Rng;
+use rand::Rng;
 
 use glam::DVec3;
 
@@ -25,12 +25,12 @@ pub enum Material {
 }
 
 impl Material {
-    pub fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(DVec3, Ray, bool)> {
+    pub fn scatter(&self, r_in: Ray, rec: &HitRecord, debug: bool) -> Option<(DVec3, Ray, bool)> {
         use Material::*;
 
         match self {
             Default {} => Some((
-                DVec3::new(0.0, 0.0, 1.0),
+                DVec3::new(0.0, 0.0, 0.0),
                 Ray::new(DVec3::new(0.0, 0.0, 1.0), DVec3::new(0.0, 0.0, 1.0)),
                 true,
             )),
@@ -52,6 +52,8 @@ impl Material {
 
                 let scattered = Ray::new(rec.p, reflected);
                 let attenuation = *albedo;
+
+                // Returns false if a fuzzed ray ends up bouncing inside the surface
                 Some((
                     attenuation,
                     scattered,
@@ -63,37 +65,52 @@ impl Material {
                 let attenuation = DVec3::new(1.0, 1.0, 1.0);
 
                 let ri = if rec.front_face {
-                    1.0 / (*refraction_index)
+                    1.0 / (refraction_index)
                 } else {
-                    *refraction_index
+                    1.0 * (refraction_index)
                 };
 
                 let unit_direction = r_in.direction.normalize();
-                let refracted = Self::refract(&unit_direction, &rec.normal, ri).unwrap();
 
-                let scattered = Ray::new(rec.p, refracted);
+                let cos_theta = (-unit_direction).dot(rec.normal).min(1.0);
+                let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
+                let mut rng = rand::thread_rng();
+                let direction = if ri * sin_theta > 1.0
+                    || Self::reflectance(cos_theta, ri) > rng.gen::<f64>()
+                {
+                    Self::reflect(unit_direction, rec.normal).unwrap()
+                } else {
+                    Self::refract(unit_direction, rec.normal, ri).unwrap()
+                };
+                // let direction = Self::refract(&unit_direction, &rec.normal, ri).unwrap();
+
+                let scattered = Ray::new(rec.p, direction);
+                if debug {
+                    println!("material::scatter::scattered: {:?}", scattered);
+                    println!("material::scatter::direction: {:?}", direction);
+                }
                 Some((attenuation, scattered, true))
             }
         }
     }
 
-    // fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
-    //     // Use Schlick's approximation for reflectance.
-    //     let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
-    //     let r0 = r0 * r0;
-    //     r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
-    // }
+    fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
+        // Use Schlick's approximation for reflectance.
+        let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        let r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
+    }
 
     pub fn reflect(v: DVec3, n: DVec3) -> Option<DVec3> {
         Some(v - 2.0 * v.dot(n) * n)
     }
 
-    pub fn refract(v: &DVec3, n: &DVec3, ni_over_nt: f64) -> Option<DVec3> {
+    pub fn refract(v: DVec3, n: DVec3, ni_over_nt: f64) -> Option<DVec3> {
         let uv = v.normalize();
-        let cos_theta = ((-1.0 * (uv)).dot(*n)).min(1.0);
-        let r_out_perp = ni_over_nt * (uv + (cos_theta * (*n)));
-        let r_out_parallel = (-1.0 * (1.0 - r_out_perp.length_squared()).abs().sqrt()) * (*n);
+        let cos_theta = ((-1.0 * (uv)).dot(n)).min(1.0);
+        let r_out_perp = ni_over_nt * (uv + (cos_theta * (n)));
+        let r_out_parallel = (-1.0 * (1.0 - r_out_perp.length_squared()).abs().sqrt()) * (n);
         Some(r_out_perp + r_out_parallel)
     }
 }
@@ -105,18 +122,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn refraction_test() {
+    fn refract_test() {
         let r_in = DVec3::new(1.0, -1.0, 0.0).normalize();
         let normal = DVec3::new(0.0, 1.0, 0.0);
 
-        let refract = Material::refract(&r_in, &normal, 1.0).unwrap();
+        let refract = Material::refract(r_in, normal, 1.0).unwrap();
 
         assert!((r_in - refract).length().abs() < f64::EPSILON);
 
         let r_in = DVec3::new(1.0, -1.0, 0.0).normalize();
         let normal = DVec3::new(0.0, 1.0, 0.0);
 
-        let refract = Material::refract(&r_in, &normal, 1.0 / 1.5).unwrap();
+        let refract = Material::refract(r_in, normal, 1.0 / 1.5).unwrap();
         let expected = DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize();
 
         assert!((expected - refract).length().abs() < f64::EPSILON);
@@ -140,7 +157,7 @@ mod tests {
             DVec3::new(1.0, -1.0, 0.0).normalize(),
         );
 
-        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec).unwrap();
+        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec, false).unwrap();
 
         let reflected = DVec3::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
 
@@ -165,7 +182,7 @@ mod tests {
             DVec3::new(1.0, -1.0, 0.0).normalize(),
         );
 
-        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec).unwrap();
+        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec, false).unwrap();
 
         let _reflected = DVec3::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
 
@@ -174,7 +191,6 @@ mod tests {
         assert!((scattered.direction - expected).length().abs() < f64::EPSILON);
     }
 
-    // TODO make another that exits the sphere at the same point
     #[test]
     fn scatter_dielectric_ref_1_5_exit_test() {
         let rec = HitRecord {
@@ -192,12 +208,36 @@ mod tests {
             DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize(),
         );
 
-        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec).unwrap();
+        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec, false).unwrap();
 
         let _reflected = DVec3::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
 
         let expected = DVec3::new(1.0, -1.0, 0.0).normalize();
-        
+
+        assert!((scattered.direction - expected).length().abs() < 0.1);
+    }
+
+    #[test]
+    fn scatter_dielectric_ref_1_0_dead_on_test() {
+        let rec = HitRecord {
+            p: DVec3::ZERO,
+            normal: DVec3::Y,
+            t: 1.0,
+            front_face: false,
+            mat: material::Material::Dielectric {
+                refraction_index: (1.5),
+            },
+        };
+
+        let ray = Ray::new(
+            DVec3::new(0.0, 1.0, 0.0),
+            DVec3::new(0.0, -1.0, 0.0).normalize(),
+        );
+
+        let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(ray, &rec, false).unwrap();
+
+        let expected = DVec3::new(0.0, -1.0, 0.0).normalize();
+
         assert!((scattered.direction - expected).length().abs() < f64::EPSILON);
     }
 }
