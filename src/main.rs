@@ -76,28 +76,27 @@ fn main() {
         },
     )));
 
-    for _ in 0..200 {
+    for _ in 0..50 {
+        let spread = 20.0;
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
             DVec3::new(
-                (rng.gen::<f64>() - 0.5) * 20.0,
+                (rng.gen::<f64>() - 0.5) * spread,
                 0.15,
-                (rng.gen::<f64>() - 0.5) * 20.0,
+                (rng.gen::<f64>() - 0.5) * spread,
             ),
             0.15,
             material::Material::Lambertian {
                 albedo: DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()),
             },
         )));
-    }
 
-    for _ in 0..200 {
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
             DVec3::new(
-                (rng.gen::<f64>() - 0.5) * 20.0,
+                (rng.gen::<f64>() - 0.5) * spread,
                 0.15,
-                (rng.gen::<f64>() - 0.5) * 20.0,
+                (rng.gen::<f64>() - 0.5) * spread,
             ),
             0.15,
             material::Material::Metal {
@@ -105,15 +104,13 @@ fn main() {
                 fuzz: rng.gen::<f64>() / 2.0,
             },
         )));
-    }
 
-    for _ in 0..200 {
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
             DVec3::new(
-                (rng.gen::<f64>() - 0.5) * 20.0,
+                (rng.gen::<f64>() - 0.5) * spread,
                 0.15,
-                (rng.gen::<f64>() - 0.5) * 20.0,
+                (rng.gen::<f64>() - 0.5) * spread,
             ),
             0.15,
             material::Material::Dielectric {
@@ -125,13 +122,13 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 400;
-    cam.samples_per_pixel = 100;
+    cam.image_width = 2560;
+    cam.samples_per_pixel = 1500;
     cam.max_depth = 50;
 
     cam.vfov = 20.0;
     cam.look_from = DVec3::new(13.0, 2.0, 3.0);
-    cam.look_at = DVec3::new(0.0, 0.0, 0.0);
+    cam.look_at = DVec3::new(0.0, 1.25, 0.0);
     cam.look_up = DVec3::new(0.0, 1.0, 0.0);
 
     cam.defocus_angle = 0.6;

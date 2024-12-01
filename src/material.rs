@@ -80,10 +80,10 @@ impl Material {
                     || Self::reflectance(cos_theta, ri) > rng.gen::<f64>()
                 {
                     Self::reflect(unit_direction, rec.normal).unwrap()
+                    // Self::refract(unit_direction, rec.normal, ri).unwrap()
                 } else {
                     Self::refract(unit_direction, rec.normal, ri).unwrap()
                 };
-                // let direction = Self::refract(&unit_direction, &rec.normal, ri).unwrap();
 
                 let scattered = Ray::new(rec.p, direction);
                 if debug {
