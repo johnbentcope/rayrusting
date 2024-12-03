@@ -28,7 +28,7 @@ pub fn random_dvec3_unit() -> DVec3 {
     loop {
         let p = random_dvec3_range(-1.0, 1.0);
         let len_sq = p.length_squared();
-        if 1e-160 < len_sq && len_sq <= 1.0 {
+        if f64::EPSILON < len_sq && len_sq <= 1.0 {
             return p / len_sq.sqrt();
         }
     }

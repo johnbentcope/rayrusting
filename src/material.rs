@@ -30,8 +30,8 @@ impl Material {
 
         match self {
             Default {} => Some((
-                DVec3::new(0.0, 0.0, 0.0),
-                Ray::new(DVec3::new(0.0, 0.0, 1.0), DVec3::new(0.0, 0.0, 1.0)),
+                DVec3::ZERO,
+                Ray::new(DVec3::ONE, DVec3::ONE),
                 true,
             )),
             Lambertian { albedo } => {
@@ -48,7 +48,7 @@ impl Material {
             Metal { albedo, fuzz } => {
                 let fuzz = if *fuzz > 1.0 { 1.0 } else { *fuzz };
                 let reflected = Self::reflect(r_in.direction, rec.normal).unwrap();
-                let reflected = reflected.normalize() + (fuzz * random_dvec3_unit());
+                let reflected = reflected + (fuzz * random_dvec3_unit());
 
                 let scattered = Ray::new(rec.p, reflected);
                 let attenuation = *albedo;
@@ -62,7 +62,7 @@ impl Material {
             }
             Dielectric { refraction_index } => {
                 // White, no tinting
-                let attenuation = DVec3::new(1.0, 1.0, 1.0);
+                let attenuation = DVec3::ONE;
 
                 let ri = if rec.front_face {
                     1.0 / (refraction_index)
@@ -76,14 +76,12 @@ impl Material {
                 let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
                 let mut rng = rand::thread_rng();
-                let direction = if ri * sin_theta > 1.0
-                    || Self::reflectance(cos_theta, ri) > rng.gen::<f64>()
-                {
-                    Self::reflect(unit_direction, rec.normal).unwrap()
-                    // Self::refract(unit_direction, rec.normal, ri).unwrap()
-                } else {
-                    Self::refract(unit_direction, rec.normal, ri).unwrap()
-                };
+                let direction =
+                    if ri * sin_theta > 1.0 || Self::reflectance(cos_theta, ri) > rng.gen::<f64>() {
+                        Self::reflect(unit_direction, rec.normal).unwrap()
+                    } else {
+                        Self::refract(unit_direction, rec.normal, ri).unwrap()
+                    };
 
                 let scattered = Ray::new(rec.p, direction);
                 if debug {
@@ -103,7 +101,7 @@ impl Material {
     }
 
     pub fn reflect(v: DVec3, n: DVec3) -> Option<DVec3> {
-        Some(v - 2.0 * v.dot(n) * n)
+        Some((v - 2.0 * v.dot(n) * n).normalize())
     }
 
     pub fn refract(v: DVec3, n: DVec3, ni_over_nt: f64) -> Option<DVec3> {
@@ -111,7 +109,7 @@ impl Material {
         let cos_theta = ((-1.0 * (uv)).dot(n)).min(1.0);
         let r_out_perp = ni_over_nt * (uv + (cos_theta * (n)));
         let r_out_parallel = (-1.0 * (1.0 - r_out_perp.length_squared()).abs().sqrt()) * (n);
-        Some(r_out_perp + r_out_parallel)
+        Some((r_out_perp + r_out_parallel).normalize())
     }
 }
 
