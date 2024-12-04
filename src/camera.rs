@@ -210,7 +210,7 @@ impl Camera {
 
         let ray_direction = (pixel_sample - ray_origin).normalize();
 
-        Ray::new(ray_origin, ray_direction)
+        Ray::new(ray_origin, ray_direction, 0.0)
     }
 
     fn defocus_disc_sample(&self) -> DVec3 {

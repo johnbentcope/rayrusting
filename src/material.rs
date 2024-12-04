@@ -29,7 +29,7 @@ impl Material {
         use Material::*;
 
         match self {
-            Default {} => Some((DVec3::ZERO, Ray::new(DVec3::ONE, DVec3::ONE), true)),
+            Default {} => Some((DVec3::ZERO, Ray::new(DVec3::ONE, DVec3::ONE, 0.0), true)),
             Lambertian { albedo } => {
                 let mut scatter_direction = rec.normal + random_dvec3_unit();
 
@@ -37,7 +37,7 @@ impl Material {
                     scatter_direction = rec.normal;
                 }
 
-                let scattered = Ray::new(rec.p, scatter_direction);
+                let scattered = Ray::new(rec.p, scatter_direction, 0.0);
                 let attenuation = *albedo;
                 Some((attenuation, scattered, true))
             }
@@ -46,7 +46,7 @@ impl Material {
                 let reflected = Self::reflect(r_in.direction, rec.normal).unwrap();
                 let reflected = reflected + (fuzz * random_dvec3_unit());
 
-                let scattered = Ray::new(rec.p, reflected);
+                let scattered = Ray::new(rec.p, reflected, 0.0);
                 let attenuation = *albedo;
 
                 // Returns false if a fuzzed ray ends up bouncing inside the surface
@@ -81,7 +81,7 @@ impl Material {
                         Self::refract(unit_direction, rec.normal, ri).unwrap()
                     };
 
-                let scattered = Ray::new(rec.p, direction);
+                let scattered = Ray::new(rec.p, direction, 0.0);
                 if debug {
                     println!("material::scatter::scattered: {:?}", scattered);
                     println!("material::scatter::direction: {:?}", direction);
@@ -150,6 +150,7 @@ mod tests {
         let r = Ray::new(
             DVec3::new(-1.0, 1.0, 0.0),
             DVec3::new(1.0, -1.0, 0.0).normalize(),
+            0.0,
         );
 
         let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec, false).unwrap();
@@ -175,6 +176,7 @@ mod tests {
         let r = Ray::new(
             DVec3::new(-1.0, 1.0, 0.0),
             DVec3::new(1.0, -1.0, 0.0).normalize(),
+            0.0,
         );
 
         let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec, false).unwrap();
@@ -201,6 +203,7 @@ mod tests {
         let r = Ray::new(
             DVec3::new(-1.0, 1.0, 0.0),
             DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize(),
+            0.0,
         );
 
         let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(r, &rec, false).unwrap();
@@ -227,6 +230,7 @@ mod tests {
         let ray = Ray::new(
             DVec3::new(0.0, 1.0, 0.0),
             DVec3::new(0.0, -1.0, 0.0).normalize(),
+            0.0,
         );
 
         let (_attenuation, scattered, _keeps_bouncing) = rec.mat.scatter(ray, &rec, false).unwrap();
