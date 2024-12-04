@@ -96,5 +96,3 @@ impl Hittable for Sphere {
 }
 
 // TODO test hit function
-// TODO document t parameter
-// Should t be the distance ray traveled to hit record? seems like it, but it's not currently...

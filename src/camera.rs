@@ -155,7 +155,6 @@ impl Camera {
         }
     }
 
-    // TODO - Convert this from recursive to iterative
     fn ray_color(r: Ray, depth: i32, world: &HittableList, debug: bool) -> DVec3 {
         if depth <= 0 {
             return DVec3::new(0.0, 0.0, 0.0);
@@ -192,6 +191,8 @@ impl Camera {
     }
 
     fn get_ray(&self, x: i32, y: i32) -> Ray {
+        let mut rng = rand::thread_rng();
+
         let offset = if self.samples_per_pixel > 1 {
             Self::sample_square()
         } else {
@@ -210,7 +211,9 @@ impl Camera {
 
         let ray_direction = (pixel_sample - ray_origin).normalize();
 
-        Ray::new(ray_origin, ray_direction, 0.0)
+        let ray_time = rng.gen::<f64>();
+
+        Ray::new(ray_origin, ray_direction, ray_time)
     }
 
     fn defocus_disc_sample(&self) -> DVec3 {

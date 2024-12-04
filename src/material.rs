@@ -160,7 +160,6 @@ mod tests {
         assert!((scattered.direction - reflected).length().abs() < f64::EPSILON);
     }
 
-    // TODO make another that exits the sphere at the same point
     #[test]
     fn scatter_dielectric_ref_1_5_entry_test() {
         let rec = HitRecord {
