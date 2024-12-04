@@ -6,13 +6,13 @@ use crate::ray::Ray;
 use glam::DVec3;
 
 pub struct Sphere {
-    center: DVec3,
+    center: Ray,
     radius: f64,
     mat: Material,
 }
 
 impl Sphere {
-    pub fn new(center: DVec3, radius: f64, mat: Material) -> Sphere {
+    pub fn new(center: Ray, radius: f64, mat: Material) -> Sphere {
         Sphere {
             center,
             radius,
@@ -23,7 +23,8 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, ray_t: Interval, debug: bool) -> Option<HitRecord> {
-        let oc = self.center - r.origin;
+        let current_center = self.center.at(r.time);
+        let oc = current_center - r.origin;
         let a = r.direction.dot(r.direction);
         let b = -2.0 * r.direction.dot(oc);
         let c = oc.dot(oc) - (self.radius * self.radius);
@@ -37,6 +38,8 @@ impl Hittable for Sphere {
             println!("sphere::hit::a: {:?}", a);
             println!("sphere::hit::b: {:?}", b);
             println!("sphere::hit::c: {:?}", c);
+            println!("sphere::hit::r.time: {:?}", r.time);
+            println!("sphere::hit::current_center: {:?}", current_center);
         }
 
         if discriminant < 0.0 {
@@ -84,7 +87,7 @@ impl Hittable for Sphere {
             mat: self.mat,
         };
 
-        let outward_normal = (rec.p - self.center) / self.radius;
+        let outward_normal = (rec.p - current_center) / self.radius;
 
         rec.set_face_normal(r, outward_normal);
 

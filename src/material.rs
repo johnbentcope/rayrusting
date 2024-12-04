@@ -37,7 +37,7 @@ impl Material {
                     scatter_direction = rec.normal;
                 }
 
-                let scattered = Ray::new(rec.p, scatter_direction, 0.0);
+                let scattered = Ray::new(rec.p, scatter_direction, r_in.time);
                 let attenuation = *albedo;
                 Some((attenuation, scattered, true))
             }
@@ -46,7 +46,7 @@ impl Material {
                 let reflected = Self::reflect(r_in.direction, rec.normal).unwrap();
                 let reflected = reflected + (fuzz * random_dvec3_unit());
 
-                let scattered = Ray::new(rec.p, reflected, 0.0);
+                let scattered = Ray::new(rec.p, reflected, r_in.time);
                 let attenuation = *albedo;
 
                 // Returns false if a fuzzed ray ends up bouncing inside the surface
@@ -81,7 +81,7 @@ impl Material {
                         Self::refract(unit_direction, rec.normal, ri).unwrap()
                     };
 
-                let scattered = Ray::new(rec.p, direction, 0.0);
+                let scattered = Ray::new(rec.p, direction, r_in.time);
                 if debug {
                     println!("material::scatter::scattered: {:?}", scattered);
                     println!("material::scatter::direction: {:?}", direction);

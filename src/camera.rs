@@ -130,7 +130,7 @@ impl Camera {
 
                 for _ in 0..self.samples_per_pixel {
                     let r = Self::get_ray(self, col, row);
-                    let debug2 = false; //  = col == 400 && row == 400;
+                    let debug2 = col == 20000 && row == 150;
                     if debug2 {
                         println!("camera::self.look_from: {:?}", self.look_from);
                     }

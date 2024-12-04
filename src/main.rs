@@ -12,6 +12,7 @@ use crate::sphere::Sphere;
 use camera::Camera;
 use hittable::HittableList;
 use rand::Rng;
+use ray::Ray;
 
 fn main() {
     // Set up rng for later
@@ -22,7 +23,11 @@ fn main() {
 
     // Ground
     world.add(Box::new(Sphere::new(
-        DVec3::new(0.0, -1000.0, -1.0),
+        Ray::new(
+            DVec3::new(0.0, -1000.0, -1.0),
+            DVec3::ZERO,
+            0.0,
+        ),
         1000.0,
         material::Material::Lambertian {
             albedo: DVec3::new(0.5, 0.5, 0.5),
@@ -31,7 +36,7 @@ fn main() {
 
     // Dielectric Ball
     world.add(Box::new(Sphere::new(
-        DVec3::new(0.0, 1.0, 0.0),
+        Ray::new(DVec3::new(0.0, 1.0, 0.0), DVec3::ZERO, 0.0),
         1.0,
         material::Material::Dielectric {
             refraction_index: 1.5,
@@ -40,7 +45,7 @@ fn main() {
 
     // Lambertian Ball
     world.add(Box::new(Sphere::new(
-        DVec3::new(-4.0, 1.0, -0.0),
+        Ray::new(DVec3::new(-4.0, 1.0, 0.0), DVec3::ZERO, 0.0),
         1.0,
         material::Material::Lambertian {
             albedo: DVec3::new(0.4, 0.2, 0.1),
@@ -49,7 +54,7 @@ fn main() {
 
     // Metal Ball
     world.add(Box::new(Sphere::new(
-        DVec3::new(4.0, 1.0, 0.0),
+        Ray::new(DVec3::new(4.0, 1.0, 0.0), DVec3::ZERO, 0.0),
         1.0,
         material::Material::Metal {
             albedo: DVec3::new(0.7, 0.6, 0.5),
@@ -59,13 +64,26 @@ fn main() {
 
     for _ in 0..50 {
         let spread = 6.0;
+        let vel = 1.0/3.0;
+
+        let center = DVec3::new(
+            (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+            0.2,
+            (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+        );
+        let speed = DVec3::new(
+            0.0,
+            rng.gen::<f64>() * vel,
+            0.0,
+            
+        );
 
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
-            DVec3::new(
-                (rng.gen::<f64>() - 0.5) * 2.0 * spread,
-                0.15,
-                (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+            Ray::new(
+                center,
+                speed,
+                0.0,
             ),
             0.15,
             material::Material::Lambertian {
@@ -73,12 +91,23 @@ fn main() {
             },
         )));
 
+        let center = DVec3::new(
+            (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+            0.2,
+            (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+        );
+        let speed = DVec3::new(
+            0.0,
+            rng.gen::<f64>() * vel,
+            0.0,
+            
+        );
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
-            DVec3::new(
-                (rng.gen::<f64>() - 0.5) * 2.0 * spread,
-                0.15,
-                (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+            Ray::new(
+                center,
+                speed,
+                0.0,
             ),
             0.15,
             material::Material::Metal {
@@ -87,12 +116,23 @@ fn main() {
             },
         )));
 
+        let center = DVec3::new(
+            (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+            0.2,
+            (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+        );
+        let speed = DVec3::new(
+            0.0,
+            rng.gen::<f64>() * vel,
+            0.0,
+            
+        );
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
-            DVec3::new(
-                (rng.gen::<f64>() - 0.5) * 2.0 * spread,
-                0.15,
-                (rng.gen::<f64>() - 0.5) * 2.0 * spread,
+            Ray::new(
+                center,
+                speed,
+                0.0,
             ),
             0.15,
             material::Material::Dielectric {
@@ -103,9 +143,9 @@ fn main() {
 
     let mut cam: Camera = Camera::new();
 
-    cam.aspect_ratio = 16.0 / 9.0;
+    cam.aspect_ratio = 4.0 / 3.0;
     cam.image_width = 800;
-    cam.samples_per_pixel = 100;
+    cam.samples_per_pixel = 1500;
     cam.max_depth = 50;
 
     cam.vfov = 20.0;
