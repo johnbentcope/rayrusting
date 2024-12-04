@@ -23,11 +23,7 @@ fn main() {
 
     // Ground
     world.add(Box::new(Sphere::new(
-        Ray::new(
-            DVec3::new(0.0, -1000.0, -1.0),
-            DVec3::ZERO,
-            0.0,
-        ),
+        Ray::new(DVec3::new(0.0, -1000.0, -1.0), DVec3::ZERO, 0.0),
         1000.0,
         material::Material::Lambertian {
             albedo: DVec3::new(0.5, 0.5, 0.5),
@@ -62,29 +58,20 @@ fn main() {
         },
     )));
 
-    for _ in 0..50 {
+    for _ in 0..200 {
         let spread = 6.0;
-        let vel = 1.0/3.0;
+        let vel = 1.0 / 3.0;
 
         let center = DVec3::new(
             (rng.gen::<f64>() - 0.5) * 2.0 * spread,
             0.2,
             (rng.gen::<f64>() - 0.5) * 2.0 * spread,
         );
-        let speed = DVec3::new(
-            0.0,
-            rng.gen::<f64>() * vel,
-            0.0,
-            
-        );
+        let speed = DVec3::new(0.0, rng.gen::<f64>() * vel, 0.0);
 
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
-            Ray::new(
-                center,
-                speed,
-                0.0,
-            ),
+            Ray::new(center, speed, 0.0),
             0.15,
             material::Material::Lambertian {
                 albedo: DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()),
@@ -96,19 +83,11 @@ fn main() {
             0.2,
             (rng.gen::<f64>() - 0.5) * 2.0 * spread,
         );
-        let speed = DVec3::new(
-            0.0,
-            rng.gen::<f64>() * vel,
-            0.0,
-            
-        );
+        let speed = DVec3::new(0.0, rng.gen::<f64>() * vel, 0.0);
+
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
-            Ray::new(
-                center,
-                speed,
-                0.0,
-            ),
+            Ray::new(center, speed, 0.0),
             0.15,
             material::Material::Metal {
                 albedo: DVec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()),
@@ -121,19 +100,11 @@ fn main() {
             0.2,
             (rng.gen::<f64>() - 0.5) * 2.0 * spread,
         );
-        let speed = DVec3::new(
-            0.0,
-            rng.gen::<f64>() * vel,
-            0.0,
-            
-        );
+        let speed = DVec3::new(0.0, rng.gen::<f64>() * vel, 0.0);
+
         // Lambertian mini balls
         world.add(Box::new(Sphere::new(
-            Ray::new(
-                center,
-                speed,
-                0.0,
-            ),
+            Ray::new(center, speed, 0.0),
             0.15,
             material::Material::Dielectric {
                 refraction_index: 1.0 / (rng.gen::<f64>() + 0.5),
@@ -144,9 +115,9 @@ fn main() {
     let mut cam: Camera = Camera::new();
 
     cam.aspect_ratio = 4.0 / 3.0;
-    cam.image_width = 800;
-    cam.samples_per_pixel = 1500;
-    cam.max_depth = 50;
+    cam.image_width = 2560;
+    cam.samples_per_pixel = 2000;
+    cam.max_depth = 100;
 
     cam.vfov = 20.0;
     cam.look_from = DVec3::new(13.0, 2.0, 3.0);
