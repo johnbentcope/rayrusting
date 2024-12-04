@@ -29,11 +29,7 @@ impl Material {
         use Material::*;
 
         match self {
-            Default {} => Some((
-                DVec3::ZERO,
-                Ray::new(DVec3::ONE, DVec3::ONE),
-                true,
-            )),
+            Default {} => Some((DVec3::ZERO, Ray::new(DVec3::ONE, DVec3::ONE), true)),
             Lambertian { albedo } => {
                 let mut scatter_direction = rec.normal + random_dvec3_unit();
 
@@ -61,23 +57,25 @@ impl Material {
                 ))
             }
             Dielectric { refraction_index } => {
+                let mut rng = rand::thread_rng();
+
                 // White, no tinting
                 let attenuation = DVec3::ONE;
 
                 let ri = if rec.front_face {
-                    1.0 / (refraction_index)
+                    refraction_index.recip()
                 } else {
-                    1.0 * (refraction_index)
+                    *refraction_index
                 };
 
                 let unit_direction = r_in.direction.normalize();
 
                 let cos_theta = (-unit_direction).dot(rec.normal).min(1.0);
                 let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+                let cannot_refract = ri * sin_theta > 1.0;
 
-                let mut rng = rand::thread_rng();
                 let direction =
-                    if ri * sin_theta > 1.0 || Self::reflectance(cos_theta, ri) > rng.gen::<f64>() {
+                    if cannot_refract || Self::reflectance(cos_theta, ri) > rng.gen::<f64>() {
                         Self::reflect(unit_direction, rec.normal).unwrap()
                     } else {
                         Self::refract(unit_direction, rec.normal, ri).unwrap()
@@ -101,15 +99,14 @@ impl Material {
     }
 
     pub fn reflect(v: DVec3, n: DVec3) -> Option<DVec3> {
-        Some((v - 2.0 * v.dot(n) * n).normalize())
+        Some(v - 2.0 * v.dot(n) * n)
     }
 
     pub fn refract(v: DVec3, n: DVec3, ni_over_nt: f64) -> Option<DVec3> {
-        let uv = v.normalize();
-        let cos_theta = ((-1.0 * (uv)).dot(n)).min(1.0);
-        let r_out_perp = ni_over_nt * (uv + (cos_theta * (n)));
-        let r_out_parallel = (-1.0 * (1.0 - r_out_perp.length_squared()).abs().sqrt()) * (n);
-        Some((r_out_perp + r_out_parallel).normalize())
+        let cos_theta = (-1.0 * v).dot(n).min(1.0);
+        let r_out_perp = ni_over_nt * (v + cos_theta * n);
+        let r_out_parallel = (-1.0 * (1.0 - r_out_perp.length_squared()).abs().sqrt()) * n;
+        Some(r_out_perp + r_out_parallel)
     }
 }
 
