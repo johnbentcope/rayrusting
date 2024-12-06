@@ -1,6 +1,7 @@
 use crate::interval::Interval;
 use crate::material::Material;
 use crate::ray::Ray;
+use crate::aabb::AABB;
 use glam::DVec3;
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -13,15 +14,6 @@ pub struct HitRecord {
 }
 
 impl HitRecord {
-    pub fn _new(p: DVec3, normal: DVec3, t: f64, front_face: bool, mat: Material) -> HitRecord {
-        HitRecord {
-            p,
-            normal,
-            t,
-            front_face,
-            mat,
-        }
-    }
     pub fn set_face_normal(&mut self, r: &Ray, outward_normal: DVec3) {
         // Sets the hit record normal vector.
         // NOTE: the parameter `outward_normal` is assumed to have unit length.
@@ -37,28 +29,19 @@ impl HitRecord {
 
 pub trait Hittable: Sync {
     fn hit(&self, ray: &Ray, ray_t: Interval, debug: bool) -> Option<HitRecord>;
+    fn bounding_box(&self) -> Option<AABB>;
 }
 
 #[derive(Default)]
 pub struct HittableList {
     objects: Vec<Box<dyn Hittable>>,
+    bbox: AABB,
 }
 
 impl HittableList {
-    pub fn _new(object: Box<dyn Hittable>) -> Self {
-        {
-            let mut list = Self::default();
-            list.objects.push(object);
-            list
-        }
-    }
-
     pub fn add(&mut self, obj: Box<dyn Hittable>) {
+        self.bbox = AABB::from_boxes(&self.bbox, &obj.bounding_box().unwrap());
         self.objects.push(obj);
-    }
-
-    pub fn _clear(mut self) {
-        self.objects.clear();
     }
 }
 
@@ -89,5 +72,9 @@ impl Hittable for HittableList {
             }
         }
         hit_record
+    }
+
+    fn bounding_box(&self) -> Option<AABB> {
+        Some(self.bbox) 
     }
 }

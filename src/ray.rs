@@ -8,8 +8,28 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn new(origin: DVec3, direction: DVec3, time: f64) -> Ray {
-        Ray { origin, direction, time}
+    pub fn new(origin: DVec3) -> Ray {
+        Ray {
+            origin,
+            direction: DVec3::ZERO,
+            time: 0.0,
+        }
+    }
+
+    pub fn with_direction(origin: DVec3, direction: DVec3) -> Ray {
+        Ray {
+            origin,
+            direction,
+            time: 0.0,
+        }
+    }
+
+    pub fn with_time(origin: DVec3, direction: DVec3, time: f64) -> Ray {
+        Ray {
+            origin,
+            direction,
+            time,
+        }
     }
 
     pub fn at(&self, t: f64) -> DVec3 {

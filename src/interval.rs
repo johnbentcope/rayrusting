@@ -1,5 +1,4 @@
-#[derive(Debug)]
-
+#[derive(Default, Debug, Clone, Copy)]
 pub struct Interval {
     pub min: f64,
     pub max: f64,
@@ -8,6 +7,20 @@ pub struct Interval {
 impl Interval {
     pub fn new(min: f64, max: f64) -> Interval {
         Interval { min, max }
+    }
+
+    pub fn from_intervals(a: Interval, b: Interval) -> Interval {
+        Interval {
+            min: a.min.min(b.min),
+            max: a.max.max(b.max),
+        }
+    }
+
+    pub fn empty() -> Interval {
+        Interval {
+            min: f64::INFINITY,
+            max: f64::NEG_INFINITY,
+        }
     }
 
     pub fn _size(&self) -> f64 {

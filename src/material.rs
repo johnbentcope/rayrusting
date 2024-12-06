@@ -1,7 +1,7 @@
 use crate::hittable::HitRecord;
 // Import necessary modules
 use crate::ray::Ray;
-use crate::utils::*;
+use crate::utils::{random_dvec3_unit, near_zero};
 use rand::Rng;
 
 use glam::DVec3;
@@ -29,7 +29,7 @@ impl Material {
         use Material::*;
 
         match self {
-            Default {} => Some((DVec3::ZERO, Ray::new(DVec3::ONE, DVec3::ONE, 0.0), true)),
+            Default {} => Some((DVec3::ZERO, Ray::with_direction(DVec3::ONE, DVec3::ONE), true)),
             Lambertian { albedo } => {
                 let mut scatter_direction = rec.normal + random_dvec3_unit();
 
@@ -37,7 +37,7 @@ impl Material {
                     scatter_direction = rec.normal;
                 }
 
-                let scattered = Ray::new(rec.p, scatter_direction, r_in.time);
+                let scattered = Ray::with_time(rec.p, scatter_direction, r_in.time);
                 let attenuation = *albedo;
                 Some((attenuation, scattered, true))
             }
@@ -46,7 +46,7 @@ impl Material {
                 let reflected = Self::reflect(r_in.direction, rec.normal).unwrap();
                 let reflected = reflected + (fuzz * random_dvec3_unit());
 
-                let scattered = Ray::new(rec.p, reflected, r_in.time);
+                let scattered = Ray::with_time(rec.p, reflected, r_in.time);
                 let attenuation = *albedo;
 
                 // Returns false if a fuzzed ray ends up bouncing inside the surface
@@ -81,7 +81,7 @@ impl Material {
                         Self::refract(unit_direction, rec.normal, ri).unwrap()
                     };
 
-                let scattered = Ray::new(rec.p, direction, r_in.time);
+                let scattered = Ray::with_time(rec.p, direction, r_in.time);
                 if debug {
                     println!("material::scatter::scattered: {:?}", scattered);
                     println!("material::scatter::direction: {:?}", direction);
@@ -141,13 +141,13 @@ mod tests {
             normal: DVec3::Y,
             t: 1.0,
             front_face: true,
-            mat: material::Material::Metal {
+            mat: Material::Metal {
                 albedo: (DVec3::new(0.8, 0.1, 0.0)),
                 fuzz: 0.0,
             },
         };
 
-        let r = Ray::new(
+        let r = Ray::with_time(
             DVec3::new(-1.0, 1.0, 0.0),
             DVec3::new(1.0, -1.0, 0.0).normalize(),
             0.0,
@@ -167,12 +167,12 @@ mod tests {
             normal: DVec3::Y,
             t: 1.0,
             front_face: true,
-            mat: material::Material::Dielectric {
+            mat: Material::Dielectric {
                 refraction_index: (1.5),
             },
         };
 
-        let r = Ray::new(
+        let r = Ray::with_time(
             DVec3::new(-1.0, 1.0, 0.0),
             DVec3::new(1.0, -1.0, 0.0).normalize(),
             0.0,
@@ -194,12 +194,12 @@ mod tests {
             normal: DVec3::Y,
             t: 1.0,
             front_face: false,
-            mat: material::Material::Dielectric {
+            mat: Material::Dielectric {
                 refraction_index: (1.5),
             },
         };
 
-        let r = Ray::new(
+        let r = Ray::with_time(
             DVec3::new(-1.0, 1.0, 0.0),
             DVec3::new((2.0_f64.sqrt()) / 3.0, -(7.0_f64.sqrt()) / 3.0, 0.0).normalize(),
             0.0,
@@ -221,12 +221,12 @@ mod tests {
             normal: DVec3::Y,
             t: 1.0,
             front_face: false,
-            mat: material::Material::Dielectric {
+            mat: Material::Dielectric {
                 refraction_index: (1.5),
             },
         };
 
-        let ray = Ray::new(
+        let ray = Ray::with_time(
             DVec3::new(0.0, 1.0, 0.0),
             DVec3::new(0.0, -1.0, 0.0).normalize(),
             0.0,

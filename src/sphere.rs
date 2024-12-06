@@ -1,3 +1,4 @@
+use crate::aabb::AABB;
 use crate::hittable::HitRecord;
 use crate::hittable::Hittable;
 use crate::interval::Interval;
@@ -9,14 +10,33 @@ pub struct Sphere {
     center: Ray,
     radius: f64,
     mat: Material,
+    bbox: AABB,
 }
 
 impl Sphere {
-    pub fn new(center: Ray, radius: f64, mat: Material) -> Sphere {
+    pub fn new_stationary(center: DVec3, radius: f64, mat: Material) -> Sphere {
+        Sphere {
+            center: Ray::new(center),
+            radius,
+            mat,
+            bbox: AABB::from_points(center + DVec3::splat(radius), center - DVec3::splat(radius)),
+        }
+    }
+    pub fn new_moving(center: Ray, radius: f64, mat: Material) -> Sphere {
         Sphere {
             center,
             radius,
             mat,
+            bbox: AABB::from_boxes(
+                &AABB::from_points(
+                    center.origin + DVec3::splat(radius),
+                    center.origin - DVec3::splat(radius),
+                ),
+                &AABB::from_points(
+                    center.origin + center.direction + DVec3::splat(radius),
+                    center.origin + center.direction - DVec3::splat(radius),
+                ),
+            ),
         }
     }
 }
@@ -95,6 +115,10 @@ impl Hittable for Sphere {
             println!("sphere::hit::rec: {:?}", rec);
         }
         Some(rec)
+    }
+
+    fn bounding_box(&self) -> Option<AABB> {
+        Some(self.bbox)
     }
 }
 

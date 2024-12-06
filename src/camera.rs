@@ -111,7 +111,9 @@ impl Camera {
         self.initialize();
 
         // File I/O Setup
-        let file = File::create("image.ppm").expect("Failed to create file");
+        let file = File::create("image.ppm")
+            .map_err(|e| format!("Failed to create file: {}", e))
+            .unwrap_or_else(|e| panic!("{}", e));
         let mut writer = BufWriter::new(file);
 
         Self::write_header(&mut writer, &self.image_width, &self.image_height);
@@ -150,7 +152,9 @@ impl Camera {
 
             // Print it
             for (_, pixel_color) in row_buffer {
-                Self::write_color(&mut writer, &pixel_color).unwrap();
+                if let Err(e) = Self::write_color(&mut writer, &pixel_color) {
+                    eprintln!("Error writing color: {}", e);
+                }
             }
         }
     }
@@ -213,7 +217,7 @@ impl Camera {
 
         let ray_time = rng.gen::<f64>();
 
-        Ray::new(ray_origin, ray_direction, ray_time)
+        Ray::with_time(ray_origin, ray_direction, ray_time)
     }
 
     fn defocus_disc_sample(&self) -> DVec3 {
