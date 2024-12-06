@@ -11,8 +11,8 @@ use glam::DVec3;
 
 use crate::sphere::Sphere;
 use camera::Camera;
-use material::Material;
 use hittable::HittableList;
+use material::Material;
 use rand::Rng;
 use ray::Ray;
 

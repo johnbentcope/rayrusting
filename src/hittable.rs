@@ -1,7 +1,7 @@
+use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::material::Material;
 use crate::ray::Ray;
-use crate::aabb::AABB;
 use glam::DVec3;
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -75,6 +75,6 @@ impl Hittable for HittableList {
     }
 
     fn bounding_box(&self) -> Option<AABB> {
-        Some(self.bbox) 
+        Some(self.bbox)
     }
 }

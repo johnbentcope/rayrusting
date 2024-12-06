@@ -1,7 +1,7 @@
 use crate::hittable::HitRecord;
 // Import necessary modules
 use crate::ray::Ray;
-use crate::utils::{random_dvec3_unit, near_zero};
+use crate::utils::{near_zero, random_dvec3_unit};
 use rand::Rng;
 
 use glam::DVec3;
@@ -29,7 +29,11 @@ impl Material {
         use Material::*;
 
         match self {
-            Default {} => Some((DVec3::ZERO, Ray::with_direction(DVec3::ONE, DVec3::ONE), true)),
+            Default {} => Some((
+                DVec3::ZERO,
+                Ray::with_direction(DVec3::ONE, DVec3::ONE),
+                true,
+            )),
             Lambertian { albedo } => {
                 let mut scatter_direction = rec.normal + random_dvec3_unit();
 
